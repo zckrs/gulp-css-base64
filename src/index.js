@@ -17,12 +17,16 @@ var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/img;
  * Conver a resource in base64
  * @param  {string} img  location of resource
  * @param  {object} opts
- * @todo manage options (extension, maxBase64Size)
+ * @todo manage options (extension, maxBase64Size, debug to see log)
  *
  * @return {string}      uri base64
  */
 function encodeImage(img, opts) {
     var binImg = fs.readFileSync(img);
+    gutil.log("weight    : " + binImg.length);
+    // console.log(fs.statSync(img).size);
+    gutil.log("extension : " + path.extname(img));
+
     var mimeType = mime.lookup(img);
 
     var strImg = "data:" + mimeType + ";base64," + binImg.toString("base64");
@@ -38,6 +42,7 @@ function gulpCssBase64() {
         if (file.isNull()) {
             // Do nothing if no contents
         }
+
         if (file.isBuffer()) {
             var src = file.contents.toString();
             var result = [];
