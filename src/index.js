@@ -10,7 +10,7 @@ var PluginError = gutil.PluginError;
 
 // Consts
 const PLUGIN_NAME = 'gulp-css-base64';
-var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/img;
+var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/ig;
 
 // Read the file in and convert it.
 /**
@@ -39,6 +39,8 @@ function gulpCssBase64() {
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callback) {
 
+        var currentStream = this;
+
         if (file.isNull()) {
             // Do nothing if no contents
         }
@@ -56,20 +58,23 @@ function gulpCssBase64() {
                     return result !== null;
                 },
                 function (callback) {
-                    console.log(gutil.colors.green(result[1]));
-
-                    location = path.join(path.dirname(file.path), result[1]);
-
-                    if (!fs.existsSync(location)) {
-                        gutil.log("Ressource not found : " + gutil.colors.white.bgRed(location));
+                    if(/^data:/.test(result[1])) {
+                        gutil.log("Resource is already base64 : " + gutil.colors.white.bgRed(result[1]));
                     } else {
-                        src = src.replace(result[1], encodeImage(location, null));
+                        // check extension here
+                        location = path.join(path.dirname(file.path), result[1]);
+
+                        if (!fs.existsSync(location)) {
+                            currentStream.emit('error', new PluginError(PLUGIN_NAME, "Resource not found " + gutil.colors.white.bgRed(location)));
+                        } else {
+                            src = src.replace(result[1], encodeImage(location, null));
+                        }
                     }
 
                     callback();
                 },
                 function () {
-                    console.log(gutil.colors.cyan.bold('DONE !'));
+                    gutil.log(gutil.colors.cyan.bold('DONE !'));
                 }
             );
 

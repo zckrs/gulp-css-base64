@@ -80,10 +80,11 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should ignore if file image is not found', function (done) {
+        it('should ignore if url() is already base64 ', function (done) {
+
             // create the fake file
             var fakeFile = new gutil.File({
-                contents: new Buffer('.button_alert{background:url(wrong/path/image.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+                contents: new Buffer('.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
             });
 
             // Create a css-base64 plugin stream
@@ -98,12 +99,33 @@ describe('gulp-css-base64', function () {
                 assert(file.isBuffer());
 
                 // check the contents
-                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(wrong/path/image.png\) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
                 done();
             });
+
         });
 
+        it('should throw error if resource is not found', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(wrong/path/image.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
 
+            // Create a css-base64 plugin stream
+            var stream = base64();
+
+            assert.throws(
+                function () {
+                    stream.write(fakeFile);
+                },
+                function (err) {
+                    if (err instanceof gutil.PluginError && /Resource not found/.test(err)) {
+                        return true;
+                    }
+                }
+            );
+            done();
+        });
     });
 
     describe('in stream mode', function () {
@@ -125,7 +147,6 @@ describe('gulp-css-base64', function () {
                         return true;
                     }
                 }
-
             );
             done();
         });
