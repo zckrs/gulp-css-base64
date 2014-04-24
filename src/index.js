@@ -23,8 +23,14 @@ var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/ig;
  */
 function encodeImage(img, opts) {
     var binImg = fs.readFileSync(img);
+
+    if(binImg.length > opts.maxWeightResource) {
+        gutil.log("Resource is too big : " + binImg.length + " octets");
+
+        return img;
+    }
+
     gutil.log("weight    : " + binImg.length);
-    // console.log(fs.statSync(img).size);
     gutil.log("extension : " + path.extname(img));
 
     var mimeType = mime.lookup(img);
@@ -34,7 +40,10 @@ function encodeImage(img, opts) {
     return strImg;
 }
 
-function gulpCssBase64() {
+function gulpCssBase64(opts) {
+
+    opts = opts || {};
+    opts.maxWeightResource = opts.maxWeightResource || 10000;
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callback) {
@@ -61,13 +70,13 @@ function gulpCssBase64() {
                     if(/^data:/.test(result[1])) {
                         gutil.log("Resource is already base64 : " + gutil.colors.white.bgRed(result[1]));
                     } else {
-                        // check extension here
+                        //TODO check extension
                         location = path.join(path.dirname(file.path), result[1]);
 
                         if (!fs.existsSync(location)) {
                             currentStream.emit('error', new PluginError(PLUGIN_NAME, "Resource not found " + gutil.colors.white.bgRed(location)));
                         } else {
-                            src = src.replace(result[1], encodeImage(location, null));
+                            src = src.replace(result[1], encodeImage(location, opts));
                         }
                     }
 
