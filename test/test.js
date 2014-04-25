@@ -80,6 +80,8 @@ describe('gulp-css-base64', function () {
             });
         });
 
+
+
         it('should ignore if image weight is greater than maxWeightResource default value', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({
@@ -103,7 +105,7 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should ignore if url() is already base64 ', function (done) {
+        it('should ignore if url() is already base64', function (done) {
 
             // create the fake file
             var fakeFile = new gutil.File({
@@ -128,7 +130,7 @@ describe('gulp-css-base64', function () {
 
         });
 
-        it('should throw error if resource is not found', function (done) {
+        it('should ignore if resource is not found', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({
                 contents: new Buffer('.button_alert{background:url(wrong/path/image.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
@@ -137,17 +139,43 @@ describe('gulp-css-base64', function () {
             // Create a css-base64 plugin stream
             var stream = base64();
 
-            assert.throws(
-                function () {
-                    stream.write(fakeFile);
-                },
-                function (err) {
-                    if (err instanceof gutil.PluginError && /Resource not found/.test(err)) {
-                        return true;
-                    }
-                }
-            );
-            done();
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(wrong/path/image.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                done();
+            });
+        });
+
+        it('should ignore if extension name is not allowed', function (done) {
+
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64({extensionsAllowed: ['.gif', '.jpg']});
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                done();
+            });
+
         });
     });
 

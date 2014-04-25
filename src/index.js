@@ -25,13 +25,10 @@ function encodeImage(img, opts) {
     var binImg = fs.readFileSync(img);
 
     if(binImg.length > opts.maxWeightResource) {
-        gutil.log("Resource is too big : " + binImg.length + " octets");
+        gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binImg.length + " octets"));
 
         return img;
     }
-
-    gutil.log("weight    : " + binImg.length);
-    gutil.log("extension : " + path.extname(img));
 
     var mimeType = mime.lookup(img);
 
@@ -44,6 +41,7 @@ function gulpCssBase64(opts) {
 
     opts = opts || {};
     opts.maxWeightResource = opts.maxWeightResource || 10000;
+    opts.extensionsAllowed = opts.extensionsAllowed || [];
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callback) {
@@ -67,23 +65,36 @@ function gulpCssBase64(opts) {
                     return result !== null;
                 },
                 function (callback) {
-                    if(/^data:/.test(result[1])) {
-                        gutil.log("Resource is already base64 : " + gutil.colors.white.bgRed(result[1]));
-                    } else {
-                        //TODO check extension
-                        location = path.join(path.dirname(file.path), result[1]);
 
-                        if (!fs.existsSync(location)) {
-                            currentStream.emit('error', new PluginError(PLUGIN_NAME, "Resource not found " + gutil.colors.white.bgRed(location)));
-                        } else {
-                            src = src.replace(result[1], encodeImage(location, opts));
+                    if(/^data:/.test(result[1])) {
+                        gutil.log("Resource is already base64 : " + gutil.colors.black.bgYellow(result[1].substring(0, 30) + '...'));
+
+                        return callback();
+                    }
+
+                    location = path.join(path.dirname(file.path), result[1]);
+
+                    if (opts.extensionsAllowed.length != 0) {
+                        if (opts.extensionsAllowed.indexOf(path.extname(location)) == -1) {
+                            gutil.log("Resource dont have right extension : " + gutil.colors.black.bgYellow(path.extname(location)));
+
+                            return callback();
                         }
                     }
 
+                    if (!fs.existsSync(location)) {
+                        // currentStream.emit('error', new PluginError(PLUGIN_NAME, "Resource not found " + gutil.colors.white.bgRed(location)));
+                        gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));
+
+                        return callback();
+                    }
+
+                    src = src.replace(result[1], encodeImage(location, opts));
+
                     callback();
                 },
-                function () {
-                    gutil.log(gutil.colors.cyan.bold('DONE !'));
+                function (err) {
+
                 }
             );
 
