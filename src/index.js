@@ -12,31 +12,6 @@ var PluginError = gutil.PluginError;
 const PLUGIN_NAME = 'gulp-css-base64';
 var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/ig;
 
-// Read the file in and convert it.
-/**
- * Conver a resource in base64
- * @param  {string} img  location of resource
- * @param  {object} opts
- * @todo manage options (extension, maxBase64Size, debug to see log)
- *
- * @return {string}      uri base64
- */
-function encodeImage(img, opts) {
-    var binImg = fs.readFileSync(img);
-
-    if(binImg.length > opts.maxWeightResource) {
-        gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binImg.length + " octets"));
-
-        return img;
-    }
-
-    var mimeType = mime.lookup(img);
-
-    var strImg = "data:" + mimeType + ";base64," + binImg.toString("base64");
-
-    return strImg;
-}
-
 function gulpCssBase64(opts) {
 
     opts = opts || {};
@@ -83,13 +58,22 @@ function gulpCssBase64(opts) {
                     }
 
                     if (!fs.existsSync(location)) {
-                        // currentStream.emit('error', new PluginError(PLUGIN_NAME, "Resource not found " + gutil.colors.white.bgRed(location)));
                         gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));
 
                         return callback();
                     }
 
-                    src = src.replace(result[1], encodeImage(location, opts));
+                    var binRes = fs.readFileSync(location);
+
+                    if(binRes.length > opts.maxWeightResource) {
+                        gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binRes.length + " octets"));
+
+                        return callback();
+                    }
+
+                    var strRes = "data:" + mime.lookup(location) + ";base64," + binRes.toString("base64");
+
+                    src = src.replace(result[1], strRes);
 
                     callback();
                 },
