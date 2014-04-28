@@ -15,7 +15,7 @@ var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/ig;
 function gulpCssBase64(opts) {
 
     opts = opts || {};
-    opts.maxWeightResource = opts.maxWeightResource || 10000;
+    opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
 
     // Creating a stream through which each file will pass
