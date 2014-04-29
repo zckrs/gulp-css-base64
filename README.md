@@ -1,4 +1,4 @@
-# gulp-css-base64 [![Build Status](https://travis-ci.org/zckrs/gulp-css-base64.svg?branch=dev)](https://travis-ci.org/zckrs/gulp-css-base64) [![Coverage Status](https://coveralls.io/repos/zckrs/gulp-css-base64/badge.png?branch=dev)](https://coveralls.io/r/zckrs/gulp-css-base64?branch=dev)
+# gulp-css-base64 [![Build Status](https://travis-ci.org/zckrs/gulp-css-base64.svg?branch=master)](https://travis-ci.org/zckrs/gulp-css-base64) [![Coverage Status](https://coveralls.io/repos/zckrs/gulp-css-base64/badge.png?branch=master)](https://coveralls.io/r/zckrs/gulp-css-base64?branch=master)
 
 This gulp task converts all data found within a stylesheet (those within a url( ... ) declaration) into base64-encoded data URI strings. This includes images and fonts.
 
