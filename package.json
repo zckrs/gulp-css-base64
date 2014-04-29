@@ -1,0 +1,45 @@
+{
+  "name": "gulp-css-base64",
+  "description": "Gulp's task for transform all resources found in a CSS into base64-encoded data URI strings",
+  "version": "0.0.1",
+  "homepage": "http://github.com/zckrs/gulp-css-base64",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zckrs/gulp-css-base64.git"
+  },
+  "bugs": {
+    "url": "http://github.com/zckrs/gulp-css-base64/issues",
+    "email": "project@hostname.com"
+  },
+  "contributors": [
+    "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)"
+  ],
+  "main": "./src/index.js",
+  "keywords": [
+    "gulpplugin",
+    "css",
+    "base64"
+  ],
+  "dependencies": {
+    "gulp-util": "~2.2.14",
+    "mime": "~1.2.11",
+    "through2": "~0.4.1",
+    "async": "~0.7.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.18.2",
+    "mocha-lcov-reporter": "0.0.1",
+    "coveralls": "~2.10.0",
+    "event-stream": "~3.1.2",
+    "istanbul": "~0.2.7"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha --report html -- tests/*.mocha.js -R spec -t 5000"
+  },
+  "engines": {
+    "node": ">= 0.9.0"
+  },
+  "license": "MIT"
+}
