@@ -222,7 +222,7 @@ describe('gulp-css-base64', function () {
                 assert(file.isBuffer());
 
                 // check the contents
-                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(https://raw.githubusercontent.com/zckrs/gulp-css-base64/master/test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,/VBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABa/f39AAAAAmJLR0QAAP39IzIAAAAJcEhZcwAAAEgAAABIAEb9az4AAAArSURBVAj9Y/39/WH9C/39Jxj9OxgaOEBo/Qn9Dg8GIAD9/RoY/UowfP0AACBpDP02/f1RAAAAAElFTkT9QmD9) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
                 done();
             });
 
