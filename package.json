@@ -24,7 +24,8 @@
     "gulp-util": "~2.2.14",
     "mime": "~1.2.11",
     "through2": "~0.4.1",
-    "async": "~0.7.0"
+    "async": "~0.8.0",
+    "request": "~2.34.0"
   },
   "devDependencies": {
     "mocha": "~1.18.2",

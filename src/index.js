@@ -5,6 +5,7 @@ var mime = require("mime");
 // through2 is a thin wrapper around node transform streams
 var async = require("async");
 var through = require('through2');
+var request = require('request');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
 
@@ -30,8 +31,8 @@ function gulpCssBase64(opts) {
         if (file.isBuffer()) {
             var src = file.contents.toString();
             var result = [];
-            var resultEncoded = [];
             var location = '';
+            var binRes = '';
 
             async.whilst(
                 function () {
@@ -47,23 +48,35 @@ function gulpCssBase64(opts) {
                         return callback();
                     }
 
-                    location = path.join(path.dirname(file.path), result[1]);
-
                     if (opts.extensionsAllowed.length != 0) {
-                        if (opts.extensionsAllowed.indexOf(path.extname(location)) == -1) {
-                            gutil.log("Resource dont have right extension : " + gutil.colors.black.bgYellow(path.extname(location)));
+                        if (opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
+                            gutil.log("Resource dont have allowed extension : " + gutil.colors.black.bgYellow(path.extname(result[1])));
 
                             return callback();
                         }
                     }
 
-                    if (!fs.existsSync(location)) {
-                        gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));
+                    if (/^(http|https|\/\/)/.test(result[1])) {
+                        gutil.log("Remote resource : " + gutil.colors.black.bgYellow(result[1]));
+
+                        request.get(result[1], function (error, response, body) {
+                            if (!error && response.statusCode == 200) {
+                                console.log(new Buffer(body, 'binary').toString('base64'));
+                            }
+                        });
 
                         return callback();
-                    }
+                    } else {
+                        location = path.join(path.dirname(file.path), result[1]);
 
-                    var binRes = fs.readFileSync(location);
+                        if (!fs.existsSync(location)) {
+                            gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));
+
+                            return callback();
+                        }
+
+                        binRes = fs.readFileSync(location);
+                    }
 
                     if(binRes.length > opts.maxWeightResource) {
                         gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binRes.length + " octets"));
