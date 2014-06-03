@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var path = require("path");
 var mime = require("mime");
@@ -36,8 +38,6 @@ function gulpCssBase64(opts) {
         if (file.isBuffer()) {
             var src = file.contents.toString();
             var result = [];
-            var location = '';
-            var binRes = '';
 
             async.whilst(
                 function () {
@@ -47,15 +47,15 @@ function gulpCssBase64(opts) {
                 },
                 function (callback) {
 
-                    encodeResource(result[1], opts, file.path, function(strRes) {
-                        if(undefined !== strRes) {
+                    encodeResource(result[1], opts, file.path, function (strRes) {
+                        if (undefined !== strRes) {
                             src = src.replace(result[1], strRes);
                         }
                         callback();
                     });
 
                 },
-                function (err) {
+                function () {
                     file.contents = new Buffer(src);
                     currentStream.push(file);
 
@@ -71,16 +71,16 @@ function gulpCssBase64(opts) {
 
     // returning the file stream
     return stream;
-};
+}
 
 function encodeResource(img, opts, pathFile, doneCallback) {
-    if(/^data:/.test(img)) {
+    if (/^data:/.test(img)) {
         gutil.log("Resource is already base64 : " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
         doneCallback();
         return;
     }
 
-    if (opts.extensionsAllowed.length != 0 && opts.extensionsAllowed.indexOf(path.extname(img)) == -1) {
+    if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(img)) == -1) {
         gutil.log("Resource dont have allowed extension : " + gutil.colors.black.bgYellow(path.extname(img)));
         doneCallback();
         return;
@@ -94,7 +94,7 @@ function encodeResource(img, opts, pathFile, doneCallback) {
             img = 'http:' + img;
         }
 
-        fetchRemoteRessource(img, function(resultBuffer) {
+        fetchRemoteRessource(img, function (resultBuffer) {
             if (null !== resultBuffer) {
                 var strRes = "data:" + mime.lookup(img) + ";base64," + resultBuffer.toString("base64");
                 doneCallback(strRes);
@@ -106,6 +106,9 @@ function encodeResource(img, opts, pathFile, doneCallback) {
         });
 
     } else {
+        var location = '';
+        var binRes = '';
+
         location = path.join(path.dirname(pathFile), img);
 
         if (!fs.existsSync(location)) {
@@ -116,7 +119,7 @@ function encodeResource(img, opts, pathFile, doneCallback) {
 
         binRes = fs.readFileSync(location);
 
-        if(binRes.length > opts.maxWeightResource) {
+        if (binRes.length > opts.maxWeightResource) {
             gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binRes.length + " octets"));
             doneCallback();
             return;
@@ -128,8 +131,7 @@ function encodeResource(img, opts, pathFile, doneCallback) {
         return;
     }
 
-
-  };
+}
 
 function fetchRemoteRessource(url, callback) {
     var resultBuffer;
@@ -160,7 +162,7 @@ function fetchRemoteRessource(url, callback) {
 
         callback(resultBuffer);
     }).pipe(imageStream);
-};
+}
 
 // Exporting the plugin main function
 module.exports = gulpCssBase64;
