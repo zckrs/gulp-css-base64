@@ -22,6 +22,7 @@ function gulpCssBase64(opts) {
     opts = opts || {};
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
+    opts.baseDir = opts.baseDir || '';
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -46,14 +47,12 @@ function gulpCssBase64(opts) {
                     return result !== null;
                 },
                 function (callback) {
-
-                    encodeResource(result[1], opts, file.path, function (strRes) {
+                    encodeResource(result[1], file, opts, function (strRes) {
                         if (undefined !== strRes) {
                             src = src.replace(result[1], strRes);
                         }
                         callback();
                     });
-
                 },
                 function () {
                     file.contents = new Buffer(src);
@@ -73,7 +72,7 @@ function gulpCssBase64(opts) {
     return stream;
 }
 
-function encodeResource(img, opts, pathFile, doneCallback) {
+function encodeResource(img, file, opts, doneCallback) {
     if (/^data:/.test(img)) {
         gutil.log("Resource is already base64 : " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
         doneCallback();
@@ -104,12 +103,11 @@ function encodeResource(img, opts, pathFile, doneCallback) {
                 return;
             }
         });
-
     } else {
         var location = '';
         var binRes = '';
 
-        location = path.join(path.dirname(pathFile), img);
+        location = opts.baseDir ? path.join(file.cwd, opts.baseDir, img) : path.join(path.dirname(file.path), img);
 
         if (!fs.existsSync(location)) {
             gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));

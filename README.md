@@ -6,11 +6,11 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 ## Features
 
-* Supports local and remote resource.
+* Supports local and remote resources.
 * Supports buffer (and stream **WIP**).
 * Ability to specify a weight limit. Default is 32kB which is IE8's limit.
 * Ability to filter on file extensions. Default there is no filter.
-* (Ability to define a base directory. **WIP**)
+* Ability to define a base directory. Default is the current directory.
 * Existing data URIs will be ignored.
 * (Skip specific images by specifying a directive comment. **WIP**)
 
@@ -27,21 +27,43 @@ npm install --save-dev gulp-css-base64
 ```js
 var cssBase64 = require('gulp-css-base64');
 
+//Without options
 gulp.task('default', function () {
     return gulp.src('src/css/input.css')
         .pipe(cssBase64())
+        .pipe(gulp.dest('dist'));
+});
+
+//With options
+gulp.task('default', function () {
+    return gulp.src('src/css/input.css')
+        .pipe(cssBase64({
+            baseDir: "../../images",
+            maxWeightResource: 100,
+            extensionsAllowed: ['.gif', '.jpg']
+        }))
         .pipe(gulp.dest('dist'));
 });
 ```
 
 ### Options
 
+#### options.baseDir
+Type: `String`
+
+Default value: ``
+
+*Notes: By default plugin used the current directory of gulpfile.js. But you can define a base directory for your local resources.*
+
+
 #### options.maxWeightResource
 Type: `Number`
+
 Default value: `32768`
 
 #### options.extensionsAllowed
 Type: `Array`
+
 Default value: `[]`
 
 ## License
