@@ -6,7 +6,7 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 ## Features
 
-* Supports local resource (remote **WIP**).
+* Supports local and remote resource.
 * Supports buffer (and stream **WIP**).
 * Ability to specify a weight limit. Default is 32kB which is IE8's limit.
 * Ability to filter on file extensions. Default there is no filter.
