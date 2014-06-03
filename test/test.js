@@ -153,6 +153,52 @@ describe('gulp-css-base64', function () {
             });
         });
 
+        it('should ignore if remote resource is not found with status code is different 200', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(http://www.google.com/favicon1356.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64();
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(http://www.google.com/favicon1356.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                done();
+            });
+        });
+
+        it('should ignore if remote resource is not found with error', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(http:////www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64();
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(http:////www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                done();
+            });
+        });
+
         it('should ignore if extension name is not allowed', function (done) {
 
             // create the fake file
@@ -178,7 +224,7 @@ describe('gulp-css-base64', function () {
 
         });
 
-        it('should ignore if remote resource (http://)', function (done) {
+        it('should convert if remote resource (http://)', function (done) {
 
             // create the fake file
             var fakeFile = new gutil.File({
@@ -203,7 +249,7 @@ describe('gulp-css-base64', function () {
 
         });
 
-        it('should ignore if remote resource (https://)', function (done) {
+        it('should convert if remote resource (https://)', function (done) {
 
             // create the fake file
             var fakeFile = new gutil.File({
@@ -228,7 +274,7 @@ describe('gulp-css-base64', function () {
 
         });
 
-        it('should ignore if remote resource (//)', function (done) {
+        it('should convert if remote resource (//)', function (done) {
 
             // create the fake file
             var fakeFile = new gutil.File({
