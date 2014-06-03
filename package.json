@@ -41,5 +41,9 @@
   "engines": {
     "node": ">= 0.9.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "test": "test"
+  },
+  "author": "Mehdy Dara"
 }
