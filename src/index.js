@@ -40,7 +40,7 @@ function fetchRemoteRessource(url, callback) {
             return;
         }
 
-        callback(resultBuffer, url);
+        callback(resultBuffer);
     }).pipe(imageStream);
 };
 
@@ -53,11 +53,13 @@ function gulpCssBase64(opts) {
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
 
-
         var currentStream = this;
 
         if (file.isNull()) {
             // Do nothing if no contents
+            currentStream.push(file);
+
+            return callbackStream();
         }
 
         if (file.isBuffer()) {
@@ -77,27 +79,23 @@ function gulpCssBase64(opts) {
                     fetchImage(result[1], opts, file.path, function(strRes) {
                         if(undefined !== strRes) {
                             src = src.replace(result[1], strRes);
-                            console.log(strRes);
                         }
                         callback();
                     });
 
                 },
                 function (err) {
+                    file.contents = new Buffer(src);
+                    currentStream.push(file);
 
+                    return callbackStream();
                 }
             );
-
-            file.contents = new Buffer(src);
         }
 
         if (file.isStream()) {
             this.emit('error', new PluginError(PLUGIN_NAME, 'Stream not supported!'));
         }
-
-        this.push(file);
-
-        return callbackStream();
     });
 
     // returning the file stream
@@ -122,9 +120,13 @@ function fetchImage(img, opts, pathFile, doneCallback) {
     if (/^(http|https|\/\/)/.test(img)) {
         gutil.log("Remote resource : " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
+        //
+        if (img[0] + img[1] === '//') {
+            img = 'http:' + img;
+        }
 
-        fetchRemoteRessource(img, function(resultBuffer, url) {
-            var strRes = "data:" + mime.lookup(url) + ";base64," + resultBuffer.toString("base64");
+        fetchRemoteRessource(img, function(resultBuffer) {
+            var strRes = "data:" + mime.lookup(img) + ";base64," + resultBuffer.toString("base64");
 
             doneCallback(strRes);
 
