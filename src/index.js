@@ -22,7 +22,7 @@ function gulpCssBase64(opts) {
     opts = opts || {};
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
-    opts.baseDir = opts.baseDir || null;
+    opts.baseDir = opts.baseDir || '';
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {

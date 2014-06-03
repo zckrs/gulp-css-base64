@@ -84,7 +84,9 @@ describe('gulp-css-base64', function () {
             });
 
             // Create a css-base64 plugin stream
-            var stream = base64({maxWeightResource: 10});
+            var stream = base64({
+                maxWeightResource: 10
+            });
 
             // write the fake file to it
             stream.write(fakeFile);
@@ -200,7 +202,9 @@ describe('gulp-css-base64', function () {
             });
 
             // Create a css-base64 plugin stream
-            var stream = base64({extensionsAllowed: ['.gif', '.jpg']});
+            var stream = base64({
+                extensionsAllowed: ['.gif', '.jpg']
+            });
 
             // write the fake file to it
             stream.write(fakeFile);
@@ -223,7 +227,9 @@ describe('gulp-css-base64', function () {
             });
 
             // Create a css-base64 plugin stream
-            var stream = base64({baseDir: "test/fixtures/image"});
+            var stream = base64({
+                baseDir: "test/fixtures/image"
+            });
 
             // write the fake file to it
             stream.write(fakeFile);
