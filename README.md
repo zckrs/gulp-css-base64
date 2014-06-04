@@ -8,11 +8,11 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 * Supports local and remote resources.
 * Supports buffer (and stream **WIP**).
-* Ability to specify a weight limit. Default is 32kB which is IE8's limit.
-* Ability to filter on file extensions. Default there is no filter.
-* Ability to define a base directory. Default is the current directory.
+* Ability to define a base directory. Default is the current directory. [Details](#optionsbasedir)
+* Ability to specify a weight limit. Default is 32kB which is IE8's limit. [Details](#optionsmaxweightresource)
+* Ability to filter on file extensions. Default there is no filter. [Details](#optionsextensionsallowed)
+* Ignore a resource by specifying a directive comment in CSS. [Details](#ignore-a-specific-resource)
 * Existing data URIs will be ignored.
-* (Skip specific images by specifying a directive comment. **WIP**)
 
 ## Install
 
@@ -46,7 +46,7 @@ gulp.task('default', function () {
 });
 ```
 
-### Options
+## Options
 
 #### options.baseDir
 Type: `String`
@@ -65,6 +65,18 @@ Default value: `32768`
 Type: `Array`
 
 Default value: `[]`
+
+## Ignore a specific resource
+
+You can ignore a resource with a comment `/*base64:skip*/` in CSS file after url definition.
+```css
+.ignored{
+  background: url(image.png); /*base64:skip*/
+}
+.encoded{
+  background: url(image.jpg);
+}
+```
 
 ## License
 Copyright (c) 2014 [Mehdy Dara](https://github.com/zckrs) under the MIT License.

@@ -15,7 +15,7 @@ var PluginError = gutil.PluginError;
 
 // Consts
 var PLUGIN_NAME = 'gulp-css-base64';
-var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))/ig;
+var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
 
 function gulpCssBase64(opts) {
 
