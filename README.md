@@ -8,7 +8,7 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 * Supports local and remote resources.
 * Supports buffer (and stream **WIP**).
-* Ability to define a base directory. Default is the current directory. [Details](#optionsbasedir)
+* Ability to define a relative base directory to gulpfile.js. Default is the current directory. [Details](#optionsbasedir)
 * Ability to specify a weight limit. Default is 32kB which is IE8's limit. [Details](#optionsmaxweightresource)
 * Ability to filter on file extensions. Default there is no filter. [Details](#optionsextensionsallowed)
 * Ignore a resource by specifying a directive comment in CSS. [Details](#ignore-a-specific-resource)
@@ -53,7 +53,7 @@ Type: `String`
 
 Default value: ``
 
-*Notes: By default plugin used the current directory of gulpfile.js. But you can define a base directory for your local resources.*
+Notes: Work with **relative path of gulpfile.js**. By default plugin used the current directory of gulpfile.js to find local resources.
 
 
 #### options.maxWeightResource
