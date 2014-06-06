@@ -53,7 +53,7 @@ Type: `String`
 
 Default value: ``
 
-Notes: Work with **relative path of gulpfile.js**. By default plugin used the current directory of gulpfile.js to find local resources.
+Notes: If you have absolute image paths in your stylesheet, the path specified in this option will be used as the base directory. By default plugin used the current directory of gulpfile.js to find local resources.
 
 
 #### options.maxWeightResource

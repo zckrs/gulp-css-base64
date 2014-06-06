@@ -74,19 +74,19 @@ function gulpCssBase64(opts) {
 
 function encodeResource(img, file, opts, doneCallback) {
     if (/^data:/.test(img)) {
-        gutil.log("Resource is already base64 : " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
+        gutil.log("gulp-css-base64 : Resource is already base64 " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
         doneCallback();
         return;
     }
 
     if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(img)) == -1) {
-        gutil.log("Resource dont have allowed extension : " + gutil.colors.black.bgYellow(path.extname(img)));
+        gutil.log("gulp-css-base64 : Resource dont have allowed extension " + gutil.colors.black.bgYellow(path.extname(img)));
         doneCallback();
         return;
     }
 
     if (/^(http|https|\/\/)/.test(img)) {
-        gutil.log("Remote resource : " + gutil.colors.black.bgYellow(img));
+        gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
         //
         if (img[0] + img[1] === '//') {
@@ -107,10 +107,10 @@ function encodeResource(img, file, opts, doneCallback) {
         var location = '';
         var binRes = '';
 
-        location = opts.baseDir ? path.join(file.cwd, opts.baseDir, img) : path.join(path.dirname(file.path), img);
+        location = img.charAt(0) === "/" ? (opts.baseDir || "") + img : path.join(path.dirname(file.path), (opts.baseDir || "") + "/" + img);
 
         if (!fs.existsSync(location)) {
-            gutil.log("Ressource not found : " + gutil.colors.black.bgYellow(location));
+            gutil.log("gulp-css-base64 : Ressource not found " + gutil.colors.black.bgYellow(location));
             doneCallback();
             return;
         }
@@ -118,7 +118,7 @@ function encodeResource(img, file, opts, doneCallback) {
         binRes = fs.readFileSync(location);
 
         if (binRes.length > opts.maxWeightResource) {
-            gutil.log("Resource is too big : " + gutil.colors.black.bgYellow(binRes.length + " octets"));
+            gutil.log("gulp-css-base64 : Resource is too big " + gutil.colors.black.bgYellow(binRes.length + " octets"));
             doneCallback();
             return;
         }
@@ -146,14 +146,14 @@ function fetchRemoteRessource(url, callback) {
 
     request(url, function (error, response, body) {
         if (error) {
-            gutil.log("Unable to get resource: " + gutil.colors.black.bgYellow(url) + ". Error: " + gutil.colors.black.bgYellow(error.message));
+            gutil.log("gulp-css-base64 : Unable to get resource " + gutil.colors.black.bgYellow(url) + ". Error " + gutil.colors.black.bgYellow(error.message));
             callback(null);
             return;
         }
 
         // Bail if we get anything other than 200
         if (response.statusCode !== 200) {
-            gutil.log("Unable to get resource: " + gutil.colors.black.bgYellow(url) + ". Status code: " + gutil.colors.black.bgYellow(response.statusCode));
+            gutil.log("gulp-css-base64 : Unable to get resource " + gutil.colors.black.bgYellow(url) + ". Status code " + gutil.colors.black.bgYellow(response.statusCode));
             callback(null);
             return;
         }
