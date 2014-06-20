@@ -326,6 +326,38 @@ describe('gulp-css-base64', function () {
             });
         });
 
+        it('should use cache when css contain duplicate uri resource', function (done) {
+            // example case : css contain two url() with same uri and deleteAfterEncoding is enabled
+            fs.writeFileSync('test/fixtures/image/very-very-small_copy.png', fs.readFileSync('test/fixtures/image/very-very-small.png'));
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64({
+                deleteAfterEncoding : true
+            });
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+
+                // check if file is removed
+                assert(!fs.existsSync('test/fixtures/image/very-very-small_copy.png'));
+
+                done();
+
+            });
+        });
+
         it('should convert if remote resource (http://)', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({

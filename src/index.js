@@ -29,6 +29,7 @@ function gulpCssBase64(opts) {
     var stream = through.obj(function (file, enc, callbackStream) {
 
         var currentStream = this;
+        var cache = [];
 
         if (file.isNull()) {
             // Do nothing if no contents
@@ -48,12 +49,19 @@ function gulpCssBase64(opts) {
                     return result !== null;
                 },
                 function (callback) {
-                    encodeResource(result[1], file, opts, function (strRes) {
-                        if (undefined !== strRes) {
-                            src = src.replace(result[1], strRes);
-                        }
+                    if (cache[result[1]]) {
+                        src = src.replace(result[1], cache[result[1]]);
                         callback();
-                    });
+                    } else {
+                        encodeResource(result[1], file, opts, function (strRes) {
+                            if (undefined !== strRes) {
+                                src = src.replace(result[1], strRes);
+                                // Store in cache
+                                cache[result[1]] = strRes;
+                            }
+                            callback();
+                        });
+                    }
                 },
                 function () {
                     file.contents = new Buffer(src);
