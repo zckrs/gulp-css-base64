@@ -59,7 +59,7 @@ Note: If you have absolute image paths in your stylesheet, the path specified in
 #### options.deleteAfterEncoding
 Type: `Boolean`
 
-Default value: false
+Default value: `false`
 
 Note: Delete a local source file after encoding.
 
