@@ -20,6 +20,7 @@ var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
 function gulpCssBase64(opts) {
 
     opts = opts || {};
+    opts.deleteAfterEncoding = opts.deleteAfterEncoding || false;
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
@@ -110,7 +111,7 @@ function encodeResource(img, file, opts, doneCallback) {
         location = img.charAt(0) === "/" ? (opts.baseDir || "") + img : path.join(path.dirname(file.path), (opts.baseDir || "") + "/" + img);
 
         if (!fs.existsSync(location)) {
-            gutil.log("gulp-css-base64 : Ressource not found " + gutil.colors.black.bgYellow(location));
+            gutil.log("gulp-css-base64 : File not found " + gutil.colors.black.bgYellow(location));
             doneCallback();
             return;
         }
@@ -118,12 +119,17 @@ function encodeResource(img, file, opts, doneCallback) {
         binRes = fs.readFileSync(location);
 
         if (binRes.length > opts.maxWeightResource) {
-            gutil.log("gulp-css-base64 : Resource is too big " + gutil.colors.black.bgYellow(binRes.length + " octets"));
+            gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(binRes.length + " octets") + " : " + location);
             doneCallback();
             return;
         }
 
         var strRes = "data:" + mime.lookup(location) + ";base64," + binRes.toString("base64");
+
+        if(opts.deleteAfterEncoding) {
+            gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
+            fs.unlinkSync(location);
+        }
 
         doneCallback(strRes);
         return;
