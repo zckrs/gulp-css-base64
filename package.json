@@ -1,7 +1,7 @@
 {
   "name": "gulp-css-base64",
   "description": "Gulp's task for transform all resources found in a CSS into base64-encoded data URI strings",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "homepage": "http://github.com/zckrs/gulp-css-base64",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
   },
   "bugs": {
     "url": "http://github.com/zckrs/gulp-css-base64/issues",
-    "email": "project@hostname.com"
+    "email": "mdara@eleven-labs.com"
   },
   "contributors": [
     "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)"
