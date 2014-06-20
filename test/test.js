@@ -322,7 +322,6 @@ describe('gulp-css-base64', function () {
                 assert(!fs.existsSync('test/fixtures/image/very-very-small_copy.png'));
 
                 done();
-
             });
         });
 
@@ -354,7 +353,6 @@ describe('gulp-css-base64', function () {
                 assert(!fs.existsSync('test/fixtures/image/very-very-small_copy.png'));
 
                 done();
-
             });
         });
 
