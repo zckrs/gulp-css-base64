@@ -24,6 +24,7 @@ function gulpCssBase64(opts) {
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
+    opts.preProcess = opts.preProcess || '';
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -126,21 +127,35 @@ function encodeResource(img, file, opts, doneCallback) {
 
         binRes = fs.readFileSync(location);
 
-        if (binRes.length > opts.maxWeightResource) {
-            gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(binRes.length + " octets") + " : " + location);
-            doneCallback();
+        if(opts.preProcess) {
+            opts.preProcess(binRes, function (resultBuffer) {
+                if (null !== resultBuffer) {
+                    var strRes = "data:" + mime.lookup(img) + ";base64," + resultBuffer.toString("base64");
+                    doneCallback(strRes);
+                    return;
+                } else {
+                    doneCallback();
+                    return;
+                }
+            });
+        } else {
+
+            if (binRes.length > opts.maxWeightResource) {
+                gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(binRes.length + " octets") + " : " + location);
+                doneCallback();
+                return;
+            }
+
+            var strRes = "data:" + mime.lookup(location) + ";base64," + binRes.toString("base64");
+
+            if(opts.deleteAfterEncoding) {
+                gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
+                fs.unlinkSync(location);
+            }
+
+            doneCallback(strRes);
             return;
         }
-
-        var strRes = "data:" + mime.lookup(location) + ";base64," + binRes.toString("base64");
-
-        if(opts.deleteAfterEncoding) {
-            gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
-            fs.unlinkSync(location);
-        }
-
-        doneCallback(strRes);
-        return;
     }
 
 }
