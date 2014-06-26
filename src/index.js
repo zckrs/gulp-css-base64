@@ -5,7 +5,6 @@ var path = require("path");
 var mime = require("mime");
 var Stream = require('stream').Stream;
 
-// through2 is a thin wrapper around node transform streams
 var async = require("async");
 var through = require('through2');
 var request = require('request');
@@ -98,7 +97,6 @@ function encodeResource(img, file, opts, doneCallback) {
     if (/^(http|https|\/\/)/.test(img)) {
         gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
-        //
         if (img[0] + img[1] === '//') {
             img = 'http:' + img;
         }

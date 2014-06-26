@@ -365,19 +365,15 @@ describe('gulp-css-base64', function () {
 
             // Create a css-base64 plugin stream
             var stream = base64({
-                preProcess : function(file, callback) {
-                    // every test base64 is different /!\
+                preProcess : function(srcBuffer, callback) {
+                    gm(srcBuffer).resize(10, 10).toBuffer(function (err, resultBuffer) {
+                        if (err) {
+                            console.log(err);
+                            return callback(srcBuffer);
+                        }
 
-                    gm(file)
-                    .resize(10, 10)
-                    .toBuffer(function (err, buffer) {
-                      if (err) console.log(err);;
-                      console.log('done!');
-                      console.log(file);
-                      console.log(buffer);
-                      return callback(buffer);
+                        return callback(resultBuffer);
                     });
-
                 }
             });
 
@@ -389,8 +385,10 @@ describe('gulp-css-base64', function () {
                 // make sure it came out the same way it went in
                 assert(file.isBuffer());
 
-                // check the contents
-                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAFESURBVCjPjZIxS1sBFIW/917EqARRC6lSkA5Sm0Goi/8gIC0oEUSCLQ52a+lYcLDg7G8QJ8cuhYIg2USkY5sgwSI66BAXMWlKavw6tGjyAuoZD4d7ud+5gfIAhXGjSu3+WJOfLHJ6XyziOyU+Uo7njKlgv0lfWW5zO2LbPhYDFzyyeeMm4tNPkT5CvtDgBc+Z61x65Wcx4Xt3zYhJz/2qaggNrvhFhTpbrABDXHPCKBG/eUKRCyBo+I1PdDHOMXucARE9VP9jmGKH3n9Ly740KSK+ccxIxJQzPjLr4e2lJfNiZN4D102Lg8771kk32oHUnTEy46g5I3HJnAW7LXndzu2Hr+0TMW3OTZcdcc1KHG/TosMGYsq8z8y62oIqvC23xgfGCLnkkKfM8q4FeksLEwzQwz55Qqbvrn7Hun/sVPCw7/0LzwdDLNa+BO4AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTQtMDYtMjVUMTc6NTA6MzcrMDI6MDBlazCHAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE0LTA2LTI1VDE3OjUwOjM3KzAyOjAwFDaIOwAAAABJRU5ErkJggg==) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                // assert base64 uri is different from original resource
+                assert.notEqual(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+                // for each test the encoded uri generate have a unique base64 with a common radical. assert this radical.
+                assert(file.contents.toString('utf8').indexOf('.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAAAAACoWZBhAAAACXBIWXMAAABIAAAASABGyWs+AAAACXZwQWcAAAAKAAAACgBOpnblAAAAb0lEQVQI12N4de8/GNx7xbDN8TaIddtxG8MuBtt7nz/fswUydjExiCkqijEwAZmMHkEMDKGujLsYtjAG7WNnyl/BsIXBnpFBhoGBQZbBniGXgdVMWdmCGcho9+bMaWrK4fRuZ/j/eIOyhobyhsf/AfXxKn50n8XOAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE0LTA2LTI2VDA5OjQ' > -1));
                 done();
             });
         });
