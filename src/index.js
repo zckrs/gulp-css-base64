@@ -141,13 +141,8 @@ function encodeResource(img, file, opts, doneCallback) {
 
         if(opts.preProcess) {
             opts.preProcess(binRes, function (resultBuffer) {
-                if (null !== resultBuffer) {
-                    doneCallback(resultBuffer, location);
-                    return;
-                } else {
-                    doneCallback();
-                    return;
-                }
+                doneCallback(resultBuffer, location);
+                return;
             });
         } else {
             doneCallback(binRes, location);

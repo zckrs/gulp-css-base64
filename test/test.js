@@ -4,6 +4,7 @@ var es = require('event-stream');
 var gutil = require('gulp-util');
 var base64 = require("../src/index");
 var gm = require('gm').subClass({ imageMagick: true });
+var Imagemin = require('imagemin');
 
 describe('gulp-css-base64', function () {
 
@@ -360,20 +361,15 @@ describe('gulp-css-base64', function () {
         it('should use preProcess option before encode', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({
-                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
             });
 
             // Create a css-base64 plugin stream
             var stream = base64({
                 preProcess : function(srcBuffer, callback) {
-                    gm(srcBuffer).resize(10, 10).toBuffer(function (err, resultBuffer) {
-                        if (err) {
-                            console.log(err);
-                            return callback(srcBuffer);
-                        }
+                    var newBuffer = fs.readFileSync('test/fixtures/image/very-very-small.png');
 
-                        return callback(resultBuffer);
-                    });
+                    return callback(newBuffer);
                 }
             });
 
@@ -382,14 +378,15 @@ describe('gulp-css-base64', function () {
 
             // wait for the file to come back out
             stream.once('data', function (file) {
-                console.log(file.contents.toString('utf8'));
                 // make sure it came out the same way it went in
                 assert(file.isBuffer());
+
                 // assert base64 uri is different from original resource
-                assert.notEqual(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
-                // for each test the encoded uri generate have a unique base64 with a common radical. assert this radical.
-                var stringContain = file.contents.toString('utf8').indexOf('.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAAAAACoWZBhAAAACXBIWXMAAABIAAAASABGyWs+AAAACXZwQWcAAAAKAAAACgBOpnblAAAAb0lEQVQI12N4de8/GNx7xbDN8TaIddtxG8MuBtt7nz/fswUydjExiCkqijEwAZmMHkEMDKGujLsYtjAG7WNnyl/BsIXBnpFBhoGBQZbBniGXgdVMWdmCGcho9+bMaWrK4fRuZ/j/');
-                assert.notEqual(stringContain, -1);
+                assert.notEqual(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAhCAIAAAA+r558AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAABA1JREFUSEuNV7lKLFEQ7acirijigismoqigos818yP8ATdcEk1E0djETzASNBQEl0yYDxgN3TAR18BhcBeX945Wc6am7h3f62Covt1dp+rUqbp3gj8pro+PDz55e3vb2dmZnp7u6upqa2vLzMwMguD394XF7e3tz89Pvg8bH+JXDLnEDrxYfO/y8nJoaKiwsBDef31fMHClp6fLitwWFBSMjY3hZe0NTt7f34mE2yQwHc7T09Ps7Gx+fj49it+0tDQxCMaV3NzchYWF5+dnAAgMkcT2Z3Zzc9PZ2el6JwwBGApWxAa319fXmkmS7AHb29urrq7WdLm2YVVnD7uyshJOJBtde0sjgsKr/FgMXS3a+hFtZgwnUkKWH8QGvIEB1YEEw5VoQReJt9pwiYV0X19fdXKJzAA2Pz+va+B1So1opXhDgSs4FBqt9C8uLiAnfKZTcfEMBm/FMPnB4fn5OWX5lZkofmJiwtTZjd34YqmMbnXJJycn2QYh2P39fV5eHkNzydTfi20aDoveUHJych4eHiSfEGxtbc2ttltzoxQhvLa2NhKJ1NfXG93y5dXV1bCppYDDw8Na3zrwH0YGXmtqajo7O4MHlLyurs6rz9HR0YRAYHV3dxswU4aWlpby8nJDJvrk9vaWYtvd3TWFkNR7enrknS8akVxZWZkrPLru7e2Nx+PHx8c1NTVc7O/vR6U5eY+Ojjh3jHBKS0sTYLBk1zBqFPi+vj46BVeNjY1YHBgYeHl5IRLiqKqqStWXcG7BvLMVixsbG5wCoCIWiy0uLmLWEOnk5IRIFKpODmBhzUQgJSUlQrdA6hSh3fX1dbNZsE8PDw8rKiq0iDgTuJhEI5oONXQ7ibTgs+XlZY0nkaJOGLhe9nS4UF+S9EdGRszk1jyIvbS0ROoAhpzAnrfMHJWSHDZx5AMKw6ZG36Uag3qaTE1NSU4HBwdGe6nUgfWVlZUkgdzd3ckU1tSZ4smjwcHB/f199Jy3f7nIEDEF4TypqYGMZH+IznhxSWZkmlgsjo+PJ7YYwcQveghRaJl4M0vFtohZP4UrbjGeo9zc3JzLw8/pMkVzuJOvcNjSGg53atlycAprbm6m94yMDDdeF9uQIS8gy4aGBjjkZgb/iTOIhIBxUFRUJDDyjamBF0wTKHZxcfHp6SlbJUmN+ngajUaN2P4pHNNtmCk4yqGxpFQ0AqapTyY4heGQ6uXHC6z3buw7V1dXPLSJW8ELm1ogNd7j4+PMzEx2dvb/CETeycrKwokd53Zhj94InDjKaSTaiBH7rPyxSHWhSPhjgYGHAy4byYvnP+ubmYsNZXNzE8evjo4ObNlCWmtra3t7Oxa3trbkz4QuvJYGbQvGlI2Q5Fb/BdIB8ZFZNJB/AbaAR11Xv3W0AAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+
+                // assert base64 uri is equal to 'very-very-small.png'
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+
                 done();
             });
         });
