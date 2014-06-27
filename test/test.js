@@ -382,6 +382,7 @@ describe('gulp-css-base64', function () {
 
             // wait for the file to come back out
             stream.once('data', function (file) {
+                console.log(file.contents.toString('utf8'));
                 // make sure it came out the same way it went in
                 assert(file.isBuffer());
                 // assert base64 uri is different from original resource
