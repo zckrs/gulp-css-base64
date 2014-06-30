@@ -3,8 +3,6 @@ var assert = require('assert');
 var es = require('event-stream');
 var gutil = require('gulp-util');
 var base64 = require("../src/index");
-var gm = require('gm').subClass({ imageMagick: true });
-var Imagemin = require('imagemin');
 
 describe('gulp-css-base64', function () {
 
