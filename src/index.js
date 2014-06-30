@@ -5,7 +5,6 @@ var path = require("path");
 var mime = require("mime");
 var Stream = require('stream').Stream;
 
-// through2 is a thin wrapper around node transform streams
 var async = require("async");
 var through = require('through2');
 var request = require('request');
@@ -24,6 +23,7 @@ function gulpCssBase64(opts) {
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
+    opts.preProcess = opts.preProcess || '';
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -52,16 +52,37 @@ function gulpCssBase64(opts) {
                     if (cache[result[1]]) {
                         src = src.replace(result[1], cache[result[1]]);
                         callback();
-                    } else {
-                        encodeResource(result[1], file, opts, function (strRes) {
-                            if (undefined !== strRes) {
-                                src = src.replace(result[1], strRes);
-                                // Store in cache
-                                cache[result[1]] = strRes;
-                            }
-                            callback();
-                        });
+                        return;
                     }
+
+                    if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
+                        gutil.log("gulp-css-base64 : Resource dont have allowed extension " + gutil.colors.black.bgYellow(path.extname(result[1])));
+                        callback();
+                        return;
+                    }
+
+                    encodeResource(result[1], file, opts, function (resultBuffer, location) {
+                        if (undefined !== resultBuffer) {
+
+                            if (resultBuffer.length > opts.maxWeightResource) {
+                                gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(resultBuffer.length + " octets") + " : " + result[1]);
+                                callback();
+                                return;
+                            }
+
+                            if(opts.deleteAfterEncoding && location) {
+                                gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
+                                fs.unlinkSync(location);
+                            }
+
+                            var strRes = "data:" + mime.lookup(location) + ";base64," + resultBuffer.toString("base64");
+                            src = src.replace(result[1], strRes);
+
+                            // Store in cache
+                            cache[result[1]] = strRes;
+                        }
+                        callback();
+                    });
                 },
                 function () {
                     file.contents = new Buffer(src);
@@ -88,24 +109,16 @@ function encodeResource(img, file, opts, doneCallback) {
         return;
     }
 
-    if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(img)) == -1) {
-        gutil.log("gulp-css-base64 : Resource dont have allowed extension " + gutil.colors.black.bgYellow(path.extname(img)));
-        doneCallback();
-        return;
-    }
-
     if (/^(http|https|\/\/)/.test(img)) {
         gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
-        //
         if (img[0] + img[1] === '//') {
             img = 'http:' + img;
         }
 
         fetchRemoteRessource(img, function (resultBuffer) {
             if (null !== resultBuffer) {
-                var strRes = "data:" + mime.lookup(img) + ";base64," + resultBuffer.toString("base64");
-                doneCallback(strRes);
+                doneCallback(resultBuffer, img);
                 return;
             } else {
                 doneCallback();
@@ -126,21 +139,15 @@ function encodeResource(img, file, opts, doneCallback) {
 
         binRes = fs.readFileSync(location);
 
-        if (binRes.length > opts.maxWeightResource) {
-            gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(binRes.length + " octets") + " : " + location);
-            doneCallback();
+        if(opts.preProcess) {
+            opts.preProcess(binRes, function (resultBuffer) {
+                doneCallback(resultBuffer, location);
+                return;
+            });
+        } else {
+            doneCallback(binRes, location);
             return;
         }
-
-        var strRes = "data:" + mime.lookup(location) + ";base64," + binRes.toString("base64");
-
-        if(opts.deleteAfterEncoding) {
-            gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
-            fs.unlinkSync(location);
-        }
-
-        doneCallback(strRes);
-        return;
     }
 
 }
