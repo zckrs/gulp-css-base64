@@ -151,6 +151,30 @@ describe('gulp-css-base64', function () {
 
         });
 
+        it('should ignore if url() begin with #', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{mask-image: url("#stark-svg-mask");}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64();
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{mask-image: url("#stark-svg-mask");}');
+                done();
+            });
+
+        });
+
         it('should ignore if resource is not found', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({

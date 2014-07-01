@@ -15,6 +15,7 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 * Ability to filter on file extensions. Default there is no filter. [Details](#optionsextensionsallowed)
 * Ignore a resource by specifying a directive comment in CSS. [Details](#ignore-a-specific-resource)
 * Existing data URIs will be ignored.
+* Existing SVG masks will be ignored.
 
 ## Install
 

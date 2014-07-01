@@ -109,6 +109,12 @@ function encodeResource(img, file, opts, doneCallback) {
         return;
     }
 
+    if (img[0] === '#') {
+        gutil.log("gulp-css-base64 : SVG mask ignored " + gutil.colors.black.bgYellow(img));
+        doneCallback();
+        return;
+    }
+
     if (/^(http|https|\/\/)/.test(img)) {
         gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
