@@ -12,10 +12,11 @@ var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
 var chalk = require('chalk');
-var PluginError = require('gulp-util').PluginError;
+var gutil = require('gulp-util');
+var PluginError = gutil.PluginError;
 
 // Local library
-var log = require('./lib/log');
+var customLog = require('./lib/log');
 
 // Consts
 var PLUGIN_NAME = 'gulp-css-base64';
@@ -29,6 +30,7 @@ function gulpCssBase64(opts) {
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
     opts.preProcess = opts.preProcess || '';
+    opts.verbose = opts.verbose || false;
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -61,7 +63,7 @@ function gulpCssBase64(opts) {
                     }
 
                     if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
-                        log("Ignore " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])));
+                        log("Ignore " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])), opts.verbose);
                         callback();
                         return;
                     }
@@ -70,13 +72,13 @@ function gulpCssBase64(opts) {
                         if (undefined !== fileRes) {
 
                             if (fileRes.contents.length > opts.maxWeightResource) {
-                                log("Ignore " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"));
+                                log("Ignore " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
                                 callback();
                                 return;
                             }
 
                             if (opts.deleteAfterEncoding && fileRes.path) {
-                                log("Delete source file " + chalk.yellow(fileRes.path));
+                                log("Delete source file " + chalk.yellow(fileRes.path), opts.verbose);
                                 fs.unlinkSync(fileRes.path);
                             }
 
@@ -111,32 +113,33 @@ function encodeResource(img, file, opts, doneCallback) {
     var fileRes = new gutil.File();
 
     if (/^data:/.test(img)) {
-        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded");
+        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
         doneCallback();
         return;
     }
 
     if (img[0] === '#') {
-        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask");
+        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask", opts.verbose);
         doneCallback();
         return;
     }
 
     if (/^(http|https|\/\/)/.test(img)) {
-        log("Fetch " + chalk.yellow(img));
+        log("Fetch " + chalk.yellow(img), opts.verbose);
         // different case for uri start '//'
         if (img[0] + img[1] === '//') {
             img = 'http:' + img;
         }
 
         fetchRemoteRessource(img, function (resultBuffer) {
-            if (null !== resultBuffer) {
+            if (null === resultBuffer) {
+                log("Error: " + chalk.red(img) + ", unable to fetch", opts.verbose);
+                doneCallback();
+                return;
+            } else {
                 fileRes.path = img;
                 fileRes.contents = resultBuffer;
                 doneCallback(fileRes);
-                return;
-            } else {
-                doneCallback();
                 return;
             }
         });
@@ -147,7 +150,7 @@ function encodeResource(img, file, opts, doneCallback) {
         location = img.charAt(0) === "/" ? (opts.baseDir || "") + img : path.join(path.dirname(file.path), (opts.baseDir || "") + "/" + img);
 
         if (!fs.existsSync(location)) {
-            log("Error: " + chalk.red(location) + ", file not found");
+            log("Error: " + chalk.red(location) + ", file not found", opts.verbose);
             doneCallback();
             return;
         }
@@ -184,15 +187,25 @@ function fetchRemoteRessource(url, callback) {
     };
 
     request(url, function (error, response, body) {
+        if (error) {
+            callback(null);
+            return;
+        }
+
         // Bail if we get anything other than 200
         if (response.statusCode !== 200) {
-            log("Error: " + chalk.red(url) + ", unable to fetch " + chalk.red("code = " + response.statusCode));
             callback(null);
             return;
         }
 
         callback(resultBuffer);
     }).pipe(imageStream);
+}
+
+function log(message, isVerbose) {
+    if (true === isVerbose) {
+        customLog(message);
+    }
 }
 
 // Exporting the plugin main function
