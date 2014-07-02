@@ -8,12 +8,13 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 * Supports local and remote resources.
 * Supports buffer (and stream **WIP**).
-* Ability to use a pre-process function for each resource find in CSS. Default there is no function. [Details](#optionspreprocess)
-* Ability to define a relative base directory to gulpfile.js. Default is the current directory. [Details](#optionsbasedir)
-* Ability to remove a local resource after encoding. Default is unable. [Details](#optionsdeleteafterencoding)
-* Ability to specify a weight limit. Default is 32kB which is IE8's limit. [Details](#optionsmaxweightresource)
-* Ability to filter on file extensions. Default there is no filter. [Details](#optionsextensionsallowed)
-* Ignore a resource by specifying a directive comment in CSS. [Details](#ignore-a-specific-resource)
+* [>](#optionsverbose) Ability to enable verbose mode with debugs messages. Default is unable.
+* [>](#optionspreprocess)Ability to use a pre-process function for each resource find in CSS. Default there is no function.
+* [>](#optionsbasedir)Ability to define a relative base directory to gulpfile.js. Default is the current directory.
+* [>](#optionsdeleteafterencoding)Ability to remove a local resource after encoding. Default is unable.
+* [>](#optionsmaxweightresource)Ability to specify a weight limit. Default is 32kB which is IE8's limit.
+* [>](#optionsextensionsallowed)Ability to filter on file extensions. Default there is no filter.
+* [>](#ignore-a-specific-resource)Ignore a resource by specifying a directive comment in CSS.
 * Existing data URIs will be ignored.
 * Existing SVG masks will be ignored.
 
@@ -50,6 +51,13 @@ gulp.task('default', function () {
 ```
 
 ## Options
+
+#### options.verbose
+Type: `Boolean`
+
+Default value: `false`
+
+Note: Writes in stdout for more infos on process. (Resource ignored, fetch remote resource, etc)
 
 #### options.preProcess
 Type: `Function(buffer, mimeType, callback)`

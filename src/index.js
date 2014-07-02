@@ -170,7 +170,6 @@ function encodeResource(img, file, opts, doneCallback) {
             return;
         }
     }
-
 }
 
 function fetchRemoteRessource(url, callback) {
