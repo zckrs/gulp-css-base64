@@ -12,8 +12,7 @@ var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
 var chalk = require('chalk');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
+var PluginError = require('gulp-util').PluginError;
 
 // Local library
 var log = require('./lib/log');
