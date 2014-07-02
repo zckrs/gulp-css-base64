@@ -52,7 +52,7 @@ gulp.task('default', function () {
 ## Options
 
 #### options.preProcess
-Type: `Function(buffer, callback)`
+Type: `Function(buffer, mimeType, callback)`
 
 Default value: ``
 

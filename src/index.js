@@ -124,7 +124,7 @@ function encodeResource(img, file, opts, doneCallback) {
 
         fetchRemoteRessource(img, function (resultBuffer) {
             if (null !== resultBuffer) {
-                doneCallback(resultBuffer, img);
+                doneCallback(resultBuffer, img, mime.lookup(img));
                 return;
             } else {
                 doneCallback();
@@ -145,9 +145,14 @@ function encodeResource(img, file, opts, doneCallback) {
 
         binRes = fs.readFileSync(location);
 
-        if(opts.preProcess) {
-            opts.preProcess(binRes, function (resultBuffer) {
-                doneCallback(resultBuffer, location);
+        if (opts.preProcess) {
+            var file = new gutil.File({
+                path: location,
+                contents: binRes
+            });
+
+            opts.preProcess(file, function (file) {
+                doneCallback(file.contents, file.path);
                 return;
             });
         } else {
