@@ -4,9 +4,35 @@ var es = require('event-stream');
 var gutil = require('gulp-util');
 var base64 = require("../src/index");
 
+function captureStream(stream) {
+    var oldWrite = stream.write;
+    var buf = '';
+    stream.write = function (chunk, encoding, callback) {
+        buf += chunk.toString(); // chunk is a String or Buffer
+        oldWrite.apply(stream, arguments);
+    }
+
+    return {
+        unhook: function unhook() {
+            stream.write = oldWrite;
+        },
+        captured: function () {
+            return buf;
+        }
+    };
+}
+
 describe('gulp-css-base64', function () {
 
     // define here beforeEach(), afterEach()
+
+    var hook;
+    beforeEach(function () {
+        hook = captureStream(process.stdout);
+    });
+    afterEach(function () {
+        hook.unhook();
+    });
 
     describe('in buffer mode', function () {
         it('should convert url() content', function (done) {
@@ -357,6 +383,30 @@ describe('gulp-css-base64', function () {
 
                 done();
             });
+        });
+
+        it('should use option verbose to write debug message in stdout', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // write the fake file to it
+            var stream = base64({
+                extensionsAllowed: ['.gif', '.jpg'],
+                verbose: true
+            });
+            stream.write(fakeFile);
+
+            stream.on('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+                // console.log(hook.captured());
+                assert.notEqual(-1, hook.captured().indexOf("gulp-css-base64"));
+                // check the contents
+            });
+
+            done();
         });
 
         it('should ignore if directive comment exist at end of line', function (done) {
