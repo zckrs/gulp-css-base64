@@ -61,7 +61,7 @@ function gulpCssBase64(opts) {
                         return;
                     }
 
-                    encodeResource(result[1], file, opts, function (resultBuffer, location, mimeType) {
+                    encodeResource(result[1], file, opts, function (resultBuffer, location) {
                         if (undefined !== resultBuffer) {
 
                             if (resultBuffer.length > opts.maxWeightResource) {
@@ -75,7 +75,7 @@ function gulpCssBase64(opts) {
                                 fs.unlinkSync(location);
                             }
 
-                            var strRes = "data:" + mimeType + ";base64," + resultBuffer.toString("base64");
+                            var strRes = "data:" + mime.lookup(location) + ";base64," + resultBuffer.toString("base64");
                             src = src.replace(result[1], strRes);
 
                             // Store in cache
@@ -143,16 +143,20 @@ function encodeResource(img, file, opts, doneCallback) {
             return;
         }
 
-        var mimeType = mime.lookup(location);
         binRes = fs.readFileSync(location);
 
-        if(opts.preProcess) {
-            opts.preProcess(binRes, mimeType, function (resultBuffer) {
-                doneCallback(resultBuffer, location, mimeType);
+        if (opts.preProcess) {
+            var file = new gutil.File({
+                path: location,
+                contents: binRes
+            });
+
+            opts.preProcess(file, function (file) {
+                doneCallback(file.contents, file.path);
                 return;
             });
         } else {
-            doneCallback(binRes, location, mimeType);
+            doneCallback(binRes, location);
             return;
         }
     }

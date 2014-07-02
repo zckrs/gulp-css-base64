@@ -388,10 +388,9 @@ describe('gulp-css-base64', function () {
 
             // Create a css-base64 plugin stream
             var stream = base64({
-                preProcess : function(srcBuffer, mimeType, callback) {
-                    var newBuffer = fs.readFileSync('test/fixtures/image/very-very-small.png');
-
-                    return callback(newBuffer);
+                preProcess : function(file, callback) {
+                    file.contents = fs.readFileSync('test/fixtures/image/very-very-small.png');
+                    return callback(file);
                 }
             });
 
