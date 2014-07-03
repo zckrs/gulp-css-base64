@@ -61,21 +61,21 @@ function gulpCssBase64(opts) {
                         return;
                     }
 
-                    encodeResource(result[1], file, opts, function (resultBuffer, location) {
-                        if (undefined !== resultBuffer) {
+                    encodeResource(result[1], file, opts, function (fileRes) {
+                        if (undefined !== fileRes) {
 
-                            if (resultBuffer.length > opts.maxWeightResource) {
-                                gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(resultBuffer.length + " octets") + " : " + result[1]);
+                            if (fileRes.contents.length > opts.maxWeightResource) {
+                                gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(fileRes.contents.length + " octets") + " : " + result[1]);
                                 callback();
                                 return;
                             }
 
-                            if(opts.deleteAfterEncoding && location) {
-                                gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(location));
-                                fs.unlinkSync(location);
+                            if(opts.deleteAfterEncoding && fileRes.path) {
+                                gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(fileRes.path));
+                                fs.unlinkSync(fileRes.path);
                             }
 
-                            var strRes = "data:" + mime.lookup(location) + ";base64," + resultBuffer.toString("base64");
+                            var strRes = "data:" + mime.lookup(fileRes.path) + ";base64," + fileRes.contents.toString("base64");
                             src = src.replace(result[1], strRes);
 
                             // Store in cache
@@ -103,6 +103,8 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
+    var fileRes = new gutil.File();
+
     if (/^data:/.test(img)) {
         gutil.log("gulp-css-base64 : Resource is already base64 " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
         doneCallback();
@@ -116,6 +118,7 @@ function encodeResource(img, file, opts, doneCallback) {
     }
 
     if (/^(http|https|\/\/)/.test(img)) {
+
         gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
         // different case for uri start '//'
         if (img[0] + img[1] === '//') {
@@ -124,7 +127,9 @@ function encodeResource(img, file, opts, doneCallback) {
 
         fetchRemoteRessource(img, function (resultBuffer) {
             if (null !== resultBuffer) {
-                doneCallback(resultBuffer, img, mime.lookup(img));
+                fileRes.path = img;
+                fileRes.contents = resultBuffer;
+                doneCallback(fileRes);
                 return;
             } else {
                 doneCallback();
@@ -145,18 +150,16 @@ function encodeResource(img, file, opts, doneCallback) {
 
         binRes = fs.readFileSync(location);
 
-        if (opts.preProcess) {
-            var file = new gutil.File({
-                path: location,
-                contents: binRes
-            });
+        fileRes.path = location;
+        fileRes.contents = binRes;
 
-            opts.preProcess(file, function (file) {
-                doneCallback(file.contents, file.path);
+        if (opts.preProcess) {
+            opts.preProcess(fileRes, function (resultFileRes) {
+                doneCallback(resultFileRes);
                 return;
             });
         } else {
-            doneCallback(binRes, location);
+            doneCallback(fileRes);
             return;
         }
     }

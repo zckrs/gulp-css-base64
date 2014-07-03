@@ -11,6 +11,7 @@
     "url": "http://github.com/zckrs/gulp-css-base64/issues",
     "email": "mdara@eleven-labs.com"
   },
+  "author": "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)",
   "contributors": [
     "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)",
     "Callum Jefferies <callum.jefferies@gmail.com> (http://callumj.uk/)"
@@ -44,6 +45,5 @@
   "license": "MIT",
   "directories": {
     "test": "test"
-  },
-  "author": "Mehdy Dara"
+  }
 }
