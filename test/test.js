@@ -4,9 +4,35 @@ var es = require('event-stream');
 var gutil = require('gulp-util');
 var base64 = require("../src/index");
 
+function captureStream(stream) {
+    var oldWrite = stream.write;
+    var buf = '';
+    stream.write = function (chunk, encoding, callback) {
+        buf += chunk.toString(); // chunk is a String or Buffer
+        oldWrite.apply(stream, arguments);
+    }
+
+    return {
+        unhook: function unhook() {
+            stream.write = oldWrite;
+        },
+        captured: function () {
+            return buf;
+        }
+    };
+}
+
 describe('gulp-css-base64', function () {
 
     // define here beforeEach(), afterEach()
+
+    var hook;
+    beforeEach(function () {
+        hook = captureStream(process.stdout);
+    });
+    afterEach(function () {
+        hook.unhook();
+    });
 
     describe('in buffer mode', function () {
         it('should convert url() content', function (done) {
@@ -103,29 +129,6 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should ignore if directive comment exist at end of line', function (done) {
-            // create the fake file
-            var fakeFile = new gutil.File({
-                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png)/*base64:skip*/}')
-            });
-
-            // Create a css-base64 plugin stream
-            var stream = base64();
-
-            // write the fake file to it
-            stream.write(fakeFile);
-
-            // wait for the file to come back out
-            stream.once('data', function (file) {
-                // make sure it came out the same way it went in
-                assert(file.isBuffer());
-
-                // check the contents
-                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(test/fixtures/image/very-very-small.png)/*base64:skip*/}');
-                done();
-            });
-
-        });
 
         it('should ignore if url() is already base64', function (done) {
             // create the fake file
@@ -198,7 +201,7 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should ignore if remote resource is not found with status code is different 200', function (done) {
+        it('should ignore if remote resource is not found', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({
                 contents: new Buffer('.button_alert{background:url(http://www.google.com/favicon1356.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
@@ -319,7 +322,7 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should delete local resource source file after encoding', function (done) {
+        it('should use option delete local resource source file after encoding', function (done) {
             fs.writeFileSync('test/fixtures/image/very-very-small_copy.png', fs.readFileSync('test/fixtures/image/very-very-small.png'));
             // create the fake file
             var fakeFile = new gutil.File({
@@ -328,7 +331,7 @@ describe('gulp-css-base64', function () {
 
             // Create a css-base64 plugin stream
             var stream = base64({
-                deleteAfterEncoding : true
+                deleteAfterEncoding: true
             });
 
             // write the fake file to it
@@ -349,38 +352,7 @@ describe('gulp-css-base64', function () {
             });
         });
 
-        it('should use cache when css contain duplicate uri resource', function (done) {
-            // example case : css contain two url() with same uri and deleteAfterEncoding is enabled
-            fs.writeFileSync('test/fixtures/image/very-very-small_copy.png', fs.readFileSync('test/fixtures/image/very-very-small.png'));
-            // create the fake file
-            var fakeFile = new gutil.File({
-                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
-            });
-
-            // Create a css-base64 plugin stream
-            var stream = base64({
-                deleteAfterEncoding : true
-            });
-
-            // write the fake file to it
-            stream.write(fakeFile);
-
-            // wait for the file to come back out
-            stream.once('data', function (file) {
-                // make sure it came out the same way it went in
-                assert(file.isBuffer());
-
-                // check the contents
-                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
-
-                // check if file is removed
-                assert(!fs.existsSync('test/fixtures/image/very-very-small_copy.png'));
-
-                done();
-            });
-        });
-
-        it('should use preProcess option before encode', function (done) {
+        it('should use option preProcess before encode', function (done) {
             // create the fake file
             var fakeFile = new gutil.File({
                 contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
@@ -392,6 +364,7 @@ describe('gulp-css-base64', function () {
                     file.contents = fs.readFileSync('test/fixtures/image/very-very-small.png');
                     return callback(file);
                 }
+
             });
 
             // write the fake file to it
@@ -407,6 +380,85 @@ describe('gulp-css-base64', function () {
 
                 // assert base64 uri is equal to 'very-very-small.png'
                 assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+
+                done();
+            });
+        });
+
+        it('should use option verbose to write debug message in stdout', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // write the fake file to it
+            var stream = base64({
+                extensionsAllowed: ['.gif', '.jpg'],
+                verbose: true
+            });
+            stream.write(fakeFile);
+
+            stream.on('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+                // console.log(hook.captured());
+                assert.notEqual(-1, hook.captured().indexOf("gulp-css-base64"));
+                // check the contents
+            });
+
+            done();
+        });
+
+        it('should ignore if directive comment exist at end of line', function (done) {
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png)/*base64:skip*/}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64();
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(test/fixtures/image/very-very-small.png)/*base64:skip*/}');
+                done();
+            });
+
+        });
+
+        it('should use cache when css contain duplicate uri resource', function (done) {
+            // example case : css contain two url() with same uri and deleteAfterEncoding is enabled
+            fs.writeFileSync('test/fixtures/image/very-very-small_copy.png', fs.readFileSync('test/fixtures/image/very-very-small.png'));
+            // create the fake file
+            var fakeFile = new gutil.File({
+                contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(test/fixtures/image/very-very-small_copy.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+            });
+
+            // Create a css-base64 plugin stream
+            var stream = base64({
+                deleteAfterEncoding: true
+            });
+
+            // write the fake file to it
+            stream.write(fakeFile);
+
+            // wait for the file to come back out
+            stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+                assert(file.isBuffer());
+
+                // check the contents
+                assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANAQAAAABakNnRAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAArSURBVAjXY/j/g2H/C4b5Jxj6OxgaOEBoxgmGDg8GIACyuRoYjkowfKgAACBpDLQ2kvRRAAAAAElFTkSuQmCC) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+
+                // check if file is removed
+                assert(!fs.existsSync('test/fixtures/image/very-very-small_copy.png'));
 
                 done();
             });
@@ -459,6 +511,7 @@ describe('gulp-css-base64', function () {
         });
 
         it('should convert if remote resource (//)', function (done) {
+
             // create the fake file
             var fakeFile = new gutil.File({
                 contents: new Buffer('.button_alert{background:url(//www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
@@ -480,6 +533,7 @@ describe('gulp-css-base64', function () {
                 done();
             });
         });
+
     });
 
     describe('in stream mode', function () {

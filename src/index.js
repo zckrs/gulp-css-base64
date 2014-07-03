@@ -1,16 +1,22 @@
 'use strict';
 
+// NodeJS library
 var fs = require('fs');
 var path = require("path");
 var mime = require("mime");
 var Stream = require('stream').Stream;
 
+// NPM library
 var async = require("async");
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
+var chalk = require('chalk');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
+
+// Local library
+var customLog = require('./lib/log');
 
 // Consts
 var PLUGIN_NAME = 'gulp-css-base64';
@@ -24,6 +30,7 @@ function gulpCssBase64(opts) {
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
     opts.preProcess = opts.preProcess || '';
+    opts.verbose = opts.verbose || false;
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -56,7 +63,7 @@ function gulpCssBase64(opts) {
                     }
 
                     if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
-                        gutil.log("gulp-css-base64 : Resource dont have allowed extension " + gutil.colors.black.bgYellow(path.extname(result[1])));
+                        log("Ignores " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])), opts.verbose);
                         callback();
                         return;
                     }
@@ -65,13 +72,13 @@ function gulpCssBase64(opts) {
                         if (undefined !== fileRes) {
 
                             if (fileRes.contents.length > opts.maxWeightResource) {
-                                gutil.log("gulp-css-base64 : File is too big " + gutil.colors.black.bgYellow(fileRes.contents.length + " octets") + " : " + result[1]);
+                                log("Ignores " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
                                 callback();
                                 return;
                             }
 
-                            if(opts.deleteAfterEncoding && fileRes.path) {
-                                gutil.log("gulp-css-base64 : Resource delete " + gutil.colors.black.bgYellow(fileRes.path));
+                            if (opts.deleteAfterEncoding && fileRes.path) {
+                                log("Delete source file " + chalk.yellow(fileRes.path), opts.verbose);
                                 fs.unlinkSync(fileRes.path);
                             }
 
@@ -106,33 +113,33 @@ function encodeResource(img, file, opts, doneCallback) {
     var fileRes = new gutil.File();
 
     if (/^data:/.test(img)) {
-        gutil.log("gulp-css-base64 : Resource is already base64 " + gutil.colors.black.bgYellow(img.substring(0, 30) + '...'));
+        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
         doneCallback();
         return;
     }
 
     if (img[0] === '#') {
-        gutil.log("gulp-css-base64 : SVG mask ignored " + gutil.colors.black.bgYellow(img));
+        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask", opts.verbose);
         doneCallback();
         return;
     }
 
     if (/^(http|https|\/\/)/.test(img)) {
-
-        gutil.log("gulp-css-base64 : Remote resource " + gutil.colors.black.bgYellow(img));
+        log("Fetch " + chalk.yellow(img), opts.verbose);
         // different case for uri start '//'
         if (img[0] + img[1] === '//') {
             img = 'http:' + img;
         }
 
         fetchRemoteRessource(img, function (resultBuffer) {
-            if (null !== resultBuffer) {
+            if (null === resultBuffer) {
+                log("Error: " + chalk.red(img) + ", unable to fetch", opts.verbose);
+                doneCallback();
+                return;
+            } else {
                 fileRes.path = img;
                 fileRes.contents = resultBuffer;
                 doneCallback(fileRes);
-                return;
-            } else {
-                doneCallback();
                 return;
             }
         });
@@ -143,7 +150,7 @@ function encodeResource(img, file, opts, doneCallback) {
         location = img.charAt(0) === "/" ? (opts.baseDir || "") + img : path.join(path.dirname(file.path), (opts.baseDir || "") + "/" + img);
 
         if (!fs.existsSync(location)) {
-            gutil.log("gulp-css-base64 : File not found " + gutil.colors.black.bgYellow(location));
+            log("Error: " + chalk.red(location) + ", file not found", opts.verbose);
             doneCallback();
             return;
         }
@@ -163,7 +170,6 @@ function encodeResource(img, file, opts, doneCallback) {
             return;
         }
     }
-
 }
 
 function fetchRemoteRessource(url, callback) {
@@ -181,20 +187,24 @@ function fetchRemoteRessource(url, callback) {
 
     request(url, function (error, response, body) {
         if (error) {
-            gutil.log("gulp-css-base64 : Unable to get resource " + gutil.colors.black.bgYellow(url) + ". Error " + gutil.colors.black.bgYellow(error.message));
             callback(null);
             return;
         }
 
         // Bail if we get anything other than 200
         if (response.statusCode !== 200) {
-            gutil.log("gulp-css-base64 : Unable to get resource " + gutil.colors.black.bgYellow(url) + ". Status code " + gutil.colors.black.bgYellow(response.statusCode));
             callback(null);
             return;
         }
 
         callback(resultBuffer);
     }).pipe(imageStream);
+}
+
+function log(message, isVerbose) {
+    if (true === isVerbose) {
+        customLog(message);
+    }
 }
 
 // Exporting the plugin main function

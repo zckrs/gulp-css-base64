@@ -1,7 +1,7 @@
 {
   "name": "gulp-css-base64",
   "description": "Gulp's task for transform all resources found in a CSS into base64-encoded data URI strings",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "homepage": "http://github.com/zckrs/gulp-css-base64",
   "repository": {
     "type": "git",
@@ -28,7 +28,9 @@
     "through2": "~0.4.1",
     "async": "~0.8.0",
     "request": "~2.34.0",
-    "buffers": "~0.1.1"
+    "buffers": "~0.1.1",
+    "chalk": "~0.4.0",
+    "dateformat": "~1.0.8-1.2.3"
   },
   "devDependencies": {
     "mocha": "~1.18.2",
@@ -40,7 +42,7 @@
   "scripts": {
     "test": "mocha --reporter spec",
     "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
-    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha --report html -- tests/*.mocha.js -R spec -t 5000"
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha --report html -- test/*.js -R spec -t 5000"
   },
   "license": "MIT",
   "directories": {
