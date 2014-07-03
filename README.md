@@ -42,6 +42,7 @@ gulp.task('default', function () {
 gulp.task('default', function () {
     return gulp.src('src/css/input.css')
         .pipe(cssBase64({
+            verbose: true
             baseDir: "../../images",
             maxWeightResource: 100,
             extensionsAllowed: ['.gif', '.jpg']
@@ -60,9 +61,32 @@ Default value: `false`
 Note: Writes in stdout for more infos on process. (Resource ignored, fetch remote resource, etc)
 
 #### options.preProcess
-Type: `Function(buffer, mimeType, callback)`
+Type: `Function(vinylFile, callback)`
 
 Default value: ``
+
+Note: Vinyl is a virtual file format. See [description](https://github.com/wearefractal/vinyl#file)
+
+Example:
+```js
+// Apply a rotation on each PNG image with NPM library http://aheckmann.github.io/gm/
+var gm = require('gm').subClass({
+    imageMagick: true
+});
+[...]
+        .pipe(cssBase64({
+            preProcess : function(vinylFile, callback) {
+                if ('image/png' === mime.lookup(vinylFile.path)) {
+                    gm(vinylFile.path).rotate('green', 180).toBuffer(function (err, buffer) {
+                        vinylFile.contents = buffer;
+                        return callback(vinylFile);
+                    })
+                }
+            }
+        }))
+[...]
+
+```
 
 #### options.baseDir
 Type: `String`

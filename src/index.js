@@ -63,7 +63,7 @@ function gulpCssBase64(opts) {
                     }
 
                     if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
-                        log("Ignore " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])), opts.verbose);
+                        log("Ignores " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])), opts.verbose);
                         callback();
                         return;
                     }
@@ -72,7 +72,7 @@ function gulpCssBase64(opts) {
                         if (undefined !== fileRes) {
 
                             if (fileRes.contents.length > opts.maxWeightResource) {
-                                log("Ignore " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
+                                log("Ignores " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
                                 callback();
                                 return;
                             }
@@ -113,13 +113,13 @@ function encodeResource(img, file, opts, doneCallback) {
     var fileRes = new gutil.File();
 
     if (/^data:/.test(img)) {
-        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
+        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
         doneCallback();
         return;
     }
 
     if (img[0] === '#') {
-        log("Ignore " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask", opts.verbose);
+        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask", opts.verbose);
         doneCallback();
         return;
     }
