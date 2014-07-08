@@ -1,25 +1,22 @@
 'use strict';
 
 // NodeJS library
-var fs = require('fs');
-var path = require("path");
-var mime = require("mime");
+var fs     = require('fs');
+var path   = require('path');
+var mime   = require('mime');
 var Stream = require('stream').Stream;
 
 // NPM library
-var async = require("async");
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
-var chalk = require('chalk');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
+var async   = require('async');
+var chalk   = require('chalk');
+var File    = require('vinyl');
 
 // Local library
 var customLog = require('./lib/log');
 
-// Consts
-var PLUGIN_NAME = 'gulp-css-base64';
 var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
 
 function gulpCssBase64(opts) {
@@ -63,7 +60,7 @@ function gulpCssBase64(opts) {
                     }
 
                     if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) == -1) {
-                        log("Ignores " + chalk.yellow(result[1]) + ", extension not allowed " + chalk.yellow(path.extname(result[1])), opts.verbose);
+                        log('Ignores ' + chalk.yellow(result[1]) + ', extension not allowed ' + chalk.yellow(path.extname(result[1])), opts.verbose);
                         callback();
                         return;
                     }
@@ -71,18 +68,24 @@ function gulpCssBase64(opts) {
                     encodeResource(result[1], file, opts, function (fileRes) {
                         if (undefined !== fileRes) {
 
+                            if (opts.preProcess) {
+                                opts.preProcess(fileRes, function (resultFileRes) {
+                                    fileRes = resultFileRes;
+                                });
+                            }
+
                             if (fileRes.contents.length > opts.maxWeightResource) {
-                                log("Ignores " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
+                                log('Ignores ' + chalk.yellow(result[1]) + ', file is too big ' + chalk.yellow(fileRes.contents.length + ' bytes'), opts.verbose);
                                 callback();
                                 return;
                             }
 
                             if (opts.deleteAfterEncoding && fileRes.path) {
-                                log("Delete source file " + chalk.yellow(fileRes.path), opts.verbose);
+                                log('Delete source file ' + chalk.yellow(fileRes.path), opts.verbose);
                                 fs.unlinkSync(fileRes.path);
                             }
 
-                            var strRes = "data:" + mime.lookup(fileRes.path) + ";base64," + fileRes.contents.toString("base64");
+                            var strRes = 'data:' + mime.lookup(fileRes.path) + ';base64,' + fileRes.contents.toString('base64');
                             src = src.replace(result[1], strRes);
 
                             // Store in cache
@@ -101,7 +104,7 @@ function gulpCssBase64(opts) {
         }
 
         if (file.isStream()) {
-            this.emit('error', new PluginError(PLUGIN_NAME, 'Stream not supported!'));
+            this.emit('error', new Error('Stream not supported!'));
         }
     });
 
@@ -110,22 +113,22 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
-    var fileRes = new gutil.File();
+    var fileRes = new File();
 
     if (/^data:/.test(img)) {
-        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
+        log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', already encoded', opts.verbose);
         doneCallback();
         return;
     }
 
     if (img[0] === '#') {
-        log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", SVG mask", opts.verbose);
+        log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', SVG mask', opts.verbose);
         doneCallback();
         return;
     }
 
     if (/^(http|https|\/\/)/.test(img)) {
-        log("Fetch " + chalk.yellow(img), opts.verbose);
+        log('Fetch ' + chalk.yellow(img), opts.verbose);
         // different case for uri start '//'
         if (img[0] + img[1] === '//') {
             img = 'http:' + img;
@@ -133,7 +136,7 @@ function encodeResource(img, file, opts, doneCallback) {
 
         fetchRemoteRessource(img, function (resultBuffer) {
             if (null === resultBuffer) {
-                log("Error: " + chalk.red(img) + ", unable to fetch", opts.verbose);
+                log('Error: ' + chalk.red(img) + ', unable to fetch', opts.verbose);
                 doneCallback();
                 return;
             } else {
@@ -147,10 +150,10 @@ function encodeResource(img, file, opts, doneCallback) {
         var location = '';
         var binRes = '';
 
-        location = img.charAt(0) === "/" ? (opts.baseDir || "") + img : path.join(path.dirname(file.path), (opts.baseDir || "") + "/" + img);
+        location = img.charAt(0) === '/' ? (opts.baseDir || '') + img : path.join(path.dirname(file.path), (opts.baseDir || '') + '/' + img);
 
         if (!fs.existsSync(location)) {
-            log("Error: " + chalk.red(location) + ", file not found", opts.verbose);
+            log('Error: ' + chalk.red(location) + ', file not found', opts.verbose);
             doneCallback();
             return;
         }
@@ -160,15 +163,8 @@ function encodeResource(img, file, opts, doneCallback) {
         fileRes.path = location;
         fileRes.contents = binRes;
 
-        if (opts.preProcess) {
-            opts.preProcess(fileRes, function (resultFileRes) {
-                doneCallback(resultFileRes);
-                return;
-            });
-        } else {
-            doneCallback(fileRes);
-            return;
-        }
+        doneCallback(fileRes);
+        return;
     }
 }
 
