@@ -7,13 +7,12 @@ var mime = require("mime");
 var Stream = require('stream').Stream;
 
 // NPM library
-var async = require("async");
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
-var chalk = require('chalk');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
+var async   = require("async");
+var chalk   = require('chalk');
+var File    = require('vinyl');
 
 // Local library
 var customLog = require('./lib/log');
@@ -107,7 +106,7 @@ function gulpCssBase64(opts) {
         }
 
         if (file.isStream()) {
-            this.emit('error', new PluginError(PLUGIN_NAME, 'Stream not supported!'));
+            this.emit('error', new Error('Stream not supported!'));
         }
     });
 
@@ -116,7 +115,7 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
-    var fileRes = new gutil.File();
+    var fileRes = new File();
 
     if (/^data:/.test(img)) {
         log("Ignores " + chalk.yellow(img.substring(0, 30) + '...') + ", already encoded", opts.verbose);
