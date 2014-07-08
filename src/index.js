@@ -71,6 +71,12 @@ function gulpCssBase64(opts) {
                     encodeResource(result[1], file, opts, function (fileRes) {
                         if (undefined !== fileRes) {
 
+                            if (opts.preProcess) {
+                                opts.preProcess(fileRes, function (resultFileRes) {
+                                    fileRes = resultFileRes;
+                                });
+                            }
+
                             if (fileRes.contents.length > opts.maxWeightResource) {
                                 log("Ignores " + chalk.yellow(result[1]) + ", file is too big " + chalk.yellow(fileRes.contents.length + " bytes"), opts.verbose);
                                 callback();
@@ -160,15 +166,8 @@ function encodeResource(img, file, opts, doneCallback) {
         fileRes.path = location;
         fileRes.contents = binRes;
 
-        if (opts.preProcess) {
-            opts.preProcess(fileRes, function (resultFileRes) {
-                doneCallback(resultFileRes);
-                return;
-            });
-        } else {
-            doneCallback(fileRes);
-            return;
-        }
+        doneCallback(fileRes);
+        return;
     }
 }
 
