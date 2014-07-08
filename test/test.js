@@ -1,8 +1,15 @@
-var fs = require('fs');
+'use strict';
+
+// NodeJS library
+var fs     = require('fs');
 var assert = require('assert');
-var es = require('event-stream');
+
+// NPM library
+var es   = require('event-stream');
 var File = require('vinyl');
-var base64 = require("../src/index");
+
+// Local library
+var base64 = require('../src/index');
 
 function captureStream(stream) {
     var oldWrite = stream.write;
@@ -280,7 +287,7 @@ describe('gulp-css-base64', function () {
 
             // Create a css-base64 plugin stream
             var stream = base64({
-                baseDir: "test/fixtures/image"
+                baseDir: 'test/fixtures/image'
             });
 
             // write the fake file to it
@@ -305,7 +312,7 @@ describe('gulp-css-base64', function () {
 
             // Create a css-base64 plugin stream
             var stream = base64({
-                baseDir: "test/fixtures/image"
+                baseDir: 'test/fixtures/image'
             });
 
             // write the fake file to it
@@ -434,7 +441,7 @@ describe('gulp-css-base64', function () {
                 // make sure it came out the same way it went in
                 assert(file.isBuffer());
                 // console.log(hook.captured());
-                assert.notEqual(-1, hook.captured().indexOf("gulp-css-base64"));
+                assert.notEqual(-1, hook.captured().indexOf('gulp-css-base64'));
                 // check the contents
             });
 
