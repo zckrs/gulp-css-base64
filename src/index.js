@@ -4,6 +4,7 @@
 var fs     = require('fs');
 var path   = require('path');
 var mime   = require('mime');
+var util   = require('util');
 var Stream = require('stream').Stream;
 
 // NPM library
@@ -24,6 +25,11 @@ function gulpCssBase64(opts) {
     opts = opts || {};
     opts.deleteAfterEncoding = opts.deleteAfterEncoding || false;
     opts.maxWeightResource = opts.maxWeightResource || 32768;
+    if (util.isArray(opts.extensionsAllowed)) {
+        opts.extensionsAllowed = opts.extensionsAllowed;
+    } else {
+        opts.extensionsAllowed = [];
+    }
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
     opts.preProcess = opts.preProcess || '';
