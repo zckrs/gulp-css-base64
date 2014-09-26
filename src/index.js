@@ -8,22 +8,18 @@ var util   = require('util');
 var Stream = require('stream').Stream;
 
 // NPM library
+var gutil   = require('gulp-util');
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
 var async   = require('async');
 var chalk   = require('chalk');
-var File    = require('vinyl');
-
-// Local library
-var customLog = require('./lib/log');
 
 var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
 
 function gulpCssBase64(opts) {
 
     opts = opts || {};
-    opts.deleteAfterEncoding = opts.deleteAfterEncoding || false;
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     if (util.isArray(opts.extensionsAllowed)) {
         opts.extensionsAllowed = opts.extensionsAllowed;
@@ -32,8 +28,7 @@ function gulpCssBase64(opts) {
     }
     opts.extensionsAllowed = opts.extensionsAllowed || [];
     opts.baseDir = opts.baseDir || '';
-    opts.preProcess = opts.preProcess || '';
-    opts.verbose = opts.verbose || false;
+    opts.verbose = process.argv.indexOf('--verbose') !== -1;
 
     // Creating a stream through which each file will pass
     var stream = through.obj(function (file, enc, callbackStream) {
@@ -74,21 +69,10 @@ function gulpCssBase64(opts) {
                     encodeResource(result[1], file, opts, function (fileRes) {
                         if (undefined !== fileRes) {
 
-                            if (opts.preProcess) {
-                                opts.preProcess(fileRes, function (resultFileRes) {
-                                    fileRes = resultFileRes;
-                                });
-                            }
-
                             if (fileRes.contents.length > opts.maxWeightResource) {
                                 log('Ignores ' + chalk.yellow(result[1]) + ', file is too big ' + chalk.yellow(fileRes.contents.length + ' bytes'), opts.verbose);
                                 callback();
                                 return;
-                            }
-
-                            if (opts.deleteAfterEncoding && fileRes.path) {
-                                log('Delete source file ' + chalk.yellow(fileRes.path), opts.verbose);
-                                fs.unlinkSync(fileRes.path);
                             }
 
                             var strRes = 'data:' + mime.lookup(fileRes.path) + ';base64,' + fileRes.contents.toString('base64');
@@ -110,7 +94,7 @@ function gulpCssBase64(opts) {
         }
 
         if (file.isStream()) {
-            this.emit('error', new Error('Stream not supported!'));
+            this.emit('error', new gutil.PluginError('gulp-css-base64', 'Stream not supported!'));
         }
     });
 
@@ -119,7 +103,7 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
-    var fileRes = new File();
+    var fileRes = new gutil.File();
 
     if (/^data:/.test(img)) {
         log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', already encoded', opts.verbose);
@@ -205,7 +189,7 @@ function fetchRemoteRessource(url, callback) {
 
 function log(message, isVerbose) {
     if (true === isVerbose) {
-        customLog(message);
+        gutil.log(message);
     }
 }
 

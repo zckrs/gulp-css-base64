@@ -23,14 +23,13 @@
     "base64"
   ],
   "dependencies": {
+    "gulp-util": "~3.0.1",
     "mime": "~1.2.11",
     "through2": "~0.6.0",
     "async": "~0.9.0",
     "request": "~2.40.0",
     "buffers": "~0.1.1",
-    "chalk": "~0.5.1",
-    "dateformat": "~1.0.8-1.2.3",
-    "vinyl": "~0.3.2"
+    "chalk": "~0.5.1"
   },
   "devDependencies": {
     "mocha": "~1.21.4",

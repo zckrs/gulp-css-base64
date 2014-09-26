@@ -11,10 +11,7 @@ Inspired by [grunt-image-embed](https://github.com/ehynds/grunt-image-embed) and
 
 * Supports local and remote resources.
 * Supports buffer (and stream **WIP**).
-* [[>]](#optionsverbose) Ability to enable verbose mode with debugs messages. Default is unable.
-* [[>]](#optionspreprocess) Ability to use a pre-process function for each resource find in CSS. Default there is no function.
 * [[>]](#optionsbasedir) Ability to define a relative base directory to gulpfile.js. Default is the current directory.
-* [[>]](#optionsdeleteafterencoding) Ability to remove a local resource after encoding. Default is unable.
 * [[>]](#optionsmaxweightresource) Ability to specify a weight limit. Default is 32kB which is IE8's limit.
 * [[>]](#optionsextensionsallowed) Ability to filter on file extensions. Default there is no filter.
 * [[>]](#ignore-a-specific-resource) Ignore a resource by specifying a directive comment in CSS.
@@ -45,7 +42,6 @@ gulp.task('default', function () {
 gulp.task('default', function () {
     return gulp.src('src/css/input.css')
         .pipe(cssBase64({
-            verbose: true
             baseDir: "../../images",
             maxWeightResource: 100,
             extensionsAllowed: ['.gif', '.jpg']
@@ -56,54 +52,12 @@ gulp.task('default', function () {
 
 ## Options
 
-#### options.verbose
-Type: `Boolean`
-
-Default value: `false`
-
-Note: Writes in stdout for more infos on process. (Resource ignored, fetch remote resource, etc)
-
-#### options.preProcess
-Type: `Function(vinylFile, callback)`
-
-Default value: ``
-
-Note: Vinyl is a virtual file format. See [description](https://github.com/wearefractal/vinyl#file)
-
-Example:
-```js
-// Apply a rotation on each PNG image with NPM library http://aheckmann.github.io/gm/
-var gm = require('gm').subClass({
-    imageMagick: true
-});
-[...]
-        .pipe(cssBase64({
-            preProcess : function(vinylFile, callback) {
-                if ('image/png' === mime.lookup(vinylFile.path)) {
-                    gm(vinylFile.path).rotate('green', 180).toBuffer(function (err, buffer) {
-                        vinylFile.contents = buffer;
-                        return callback(vinylFile);
-                    })
-                }
-            }
-        }))
-[...]
-
-```
-
 #### options.baseDir
 Type: `String`
 
 Default value: ``
 
 Note: If you have absolute image paths in your stylesheet, the path specified in this option will be used as the base directory. By default plugin used the current directory of gulpfile.js to find local resources.
-
-#### options.deleteAfterEncoding
-Type: `Boolean`
-
-Default value: `false`
-
-Note: Delete a local source file after encoding.
 
 #### options.maxWeightResource
 Type: `Number`
