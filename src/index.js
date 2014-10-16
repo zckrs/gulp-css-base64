@@ -141,6 +141,7 @@ function encodeResource(img, file, opts, doneCallback) {
         var binRes = '';
 
         location = img.charAt(0) === '/' ? (opts.baseDir || '') + img : path.join(path.dirname(file.path), (opts.baseDir || '') + '/' + img);
+        location = location.replace(/([?#].*)$/, "");
 
         if (!fs.existsSync(location)) {
             log('Error: ' + chalk.red(location) + ', file not found', opts.verbose);
