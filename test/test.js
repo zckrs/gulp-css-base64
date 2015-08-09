@@ -15,6 +15,15 @@ describe('gulp-css-base64', function () {
 
     // define here beforeEach(), afterEach()
 
+    it('should not modify original options object', function () {
+        var opts = {
+            foo: 'bar'
+        };
+
+        base64(opts);
+        assert.equal(opts.maxWeightResource, undefined);
+    });
+
     describe('in buffer mode', function () {
         it('should convert url() content', function (done) {
             // create the fake file
