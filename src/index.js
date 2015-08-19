@@ -19,7 +19,7 @@ var rImages = /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
 
 function gulpCssBase64(opts) {
 
-    opts = opts || {};
+    opts = JSON.parse(JSON.stringify(opts || {}));
     opts.maxWeightResource = opts.maxWeightResource || 32768;
     if (util.isArray(opts.extensionsAllowed)) {
         opts.extensionsAllowed = opts.extensionsAllowed;
