@@ -1,7 +1,7 @@
 {
   "name": "gulp-css-base64",
   "description": "Gulp's task for transform all resources found in a CSS into base64-encoded data URI strings",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "homepage": "http://github.com/zckrs/gulp-css-base64",
   "repository": "zckrs/gulp-css-base64.git",
   "bugs": {
