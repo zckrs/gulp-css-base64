@@ -1,6 +1,6 @@
 # gulp-css-base64
 
-[![Build Status](http://img.shields.io/codeship/5edc4bd0-4415-0132-2f0b-3648ef4337a9.svg?style=flat)](https://www.codeship.io/projects/44783)
+[![Build Status](http://img.shields.io/travis/zckrs/gulp-css-base64.svg?style=flat)](https://travis-ci.org/zckrs/gulp-css-base64)
 [![Coverage Status](http://img.shields.io/coveralls/zckrs/gulp-css-base64.svg?style=flat)](https://coveralls.io/r/zckrs/gulp-css-base64?branch=master)
 [![Dependencies](http://img.shields.io/david/zckrs/gulp-css-base64.svg?style=flat)](https://david-dm.org/zckrs/gulp-css-base64) [![NPM Version](http://img.shields.io/npm/v/gulp-css-base64.svg?style=flat)](https://www.npmjs.org/package/gulp-css-base64) [![Download Month](http://img.shields.io/npm/dm/gulp-css-base64.svg?style=flat)](https://www.npmjs.org/package/gulp-css-base64)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/zckrs/gulp-css-base64?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
