@@ -516,4 +516,26 @@ describe('gulp-css-base64', function () {
       });
     });
   });
+
+  describe('the user wants verbose output', function () {
+    it('allows a user to request verbosity through the programmatic API', function (done) {
+            // Create a css-base64 plugin stream
+      var stream = base64({
+        verbose: true
+      });
+
+      var isVerbose = stream.isVerbose();
+      assert.equal(isVerbose, true);
+      done();
+    });
+
+    it('allows a user to reject verbosity through the programmatic API', function (done) {
+            // Create a css-base64 plugin stream
+      var stream = base64();
+
+      var isVerbose = stream.isVerbose();
+      assert.equal(isVerbose, false);
+      done();
+    });
+  });
 });
