@@ -58,7 +58,8 @@ function gulpCssBase64(opts) {
                     return;
                   }
 
-                  if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(result[1])) === -1) {
+                  var pureUrl = result[1].split('?')[0].split('#')[0];
+                  if (opts.extensionsAllowed.length !== 0 && opts.extensionsAllowed.indexOf(path.extname(pureUrl)) === -1) {
                     log('Ignores ' + chalk.yellow(result[1]) + ', extension not allowed ' + chalk.yellow(path.extname(result[1])), opts.verbose);
                     callback();
                     return;
