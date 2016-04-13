@@ -16,7 +16,6 @@ var async = require('async');
 var chalk = require('chalk');
 
 function gulpCssBase64(opts) {
-
   // JSON does not support Regex literals
   opts = util.isObject(opts) ? Object.assign({}, opts) : {};
   opts.maxWeightResource = opts.maxWeightResource || 32768;
