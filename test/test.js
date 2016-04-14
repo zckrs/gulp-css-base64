@@ -426,6 +426,31 @@ describe('gulp-css-base64', function () {
       });
     });
 
+    it('should ignore if directive comment exist at end of line with custom regexp', function (done) {
+            // create the fake file
+      var fakeFile = new gutil.File({
+        contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png)/*myRegexp*/}')
+      });
+
+            // Create a css-base64 plugin stream
+      var stream = base64({
+        regexp: /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*myRegexp\*\/)/ig
+      });
+
+            // write the fake file to it
+      stream.write(fakeFile);
+
+            // wait for the file to come back out
+      stream.once('data', function (file) {
+                // make sure it came out the same way it went in
+        assert(file.isBuffer());
+
+                // check the contents
+        assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(test/fixtures/image/very-very-small.png)/*myRegexp*/}');
+        done();
+      });
+    });
+
     it('should use cache when css contain duplicate uri resource', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
