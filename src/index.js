@@ -16,7 +16,6 @@ var async = require('async');
 var chalk = require('chalk');
 var clone = require('clone');
 
-
 function gulpCssBase64(opts) {
   // JSON does not support Regex literals
   opts = util.isObject(opts) ? clone(opts) : {};
