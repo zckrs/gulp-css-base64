@@ -14,10 +14,12 @@ var request = require('request');
 var buffers = require('buffers');
 var async = require('async');
 var chalk = require('chalk');
+var clone = require('clone');
+
 
 function gulpCssBase64(opts) {
   // JSON does not support Regex literals
-  opts = util.isObject(opts) ? Object.assign({}, opts) : {};
+  opts = util.isObject(opts) ? clone(opts) : {};
   opts.maxWeightResource = opts.maxWeightResource || 32768;
   if (util.isArray(opts.extensionsAllowed)) {
     opts.extensionsAllowed = opts.extensionsAllowed;
