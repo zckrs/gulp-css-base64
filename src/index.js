@@ -4,7 +4,6 @@
 var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
-var util = require('util');
 var Stream = require('stream').Stream;
 
 // NPM library
@@ -14,13 +13,13 @@ var request = require('request');
 var buffers = require('buffers');
 var async = require('async');
 var chalk = require('chalk');
-var clone = require('clone');
+var _ = require('lodash');
 
 function gulpCssBase64(opts) {
   // JSON does not support Regex literals
-  opts = util.isObject(opts) ? clone(opts) : {};
+  opts = _.isObject(opts) ? _.assign({}, opts) : {};
   opts.maxWeightResource = opts.maxWeightResource || 32768;
-  if (util.isArray(opts.extensionsAllowed)) {
+  if (_.isArray(opts.extensionsAllowed)) {
     opts.extensionsAllowed = opts.extensionsAllowed;
   } else {
     opts.extensionsAllowed = [];
@@ -28,7 +27,7 @@ function gulpCssBase64(opts) {
   opts.extensionsAllowed = opts.extensionsAllowed || [];
   opts.baseDir = opts.baseDir || '';
   opts.verbose = process.argv.indexOf('--verbose') !== -1;
-  var rImages = util.isRegExp(opts.regexp) ? opts.regexp : /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
+  var rImages = _.isRegExp(opts.regexp) ? opts.regexp : /url(?:\(['|"]?)(.*?)(?:['|"]?\))(?!.*\/\*base64:skip\*\/)/ig;
   // Creating a stream through which each file will pass
   var stream = through.obj(function (file, enc, callbackStream) {
     var currentStream = this;
