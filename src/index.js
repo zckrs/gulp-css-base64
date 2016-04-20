@@ -26,6 +26,7 @@ function gulpCssBase64(opts) {
     opts.extensionsAllowed = [];
   }
   opts.extensionsAllowed = opts.extensionsAllowed || [];
+  opts.keepHttpResource = opts.keepHttpResource || false;
   opts.baseDir = opts.baseDir || '';
   opts.verbose = process.argv.indexOf('--verbose') !== -1;
 
