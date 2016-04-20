@@ -116,23 +116,30 @@ function encodeResource(img, file, opts, doneCallback) {
   }
 
   if (/^(http|https|\/\/)/.test(img)) {
-    log('Fetch ' + chalk.yellow(img), opts.verbose);
-        // different case for uri start '//'
-    if (img[0] + img[1] === '//') {
-      img = 'http:' + img;
-    }
-
-    fetchRemoteRessource(img, function (resultBuffer) {
-      if (resultBuffer === null) {
-        log('Error: ' + chalk.red(img) + ', unable to fetch', opts.verbose);
-        doneCallback();
-        return;
-      }
-      fileRes.path = img;
-      fileRes.contents = resultBuffer;
-      doneCallback(fileRes);
+    if (opts.keepHttpResource) {
+      log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', http resource', opts.verbose);
+      doneCallback();
       return;
-    });
+    }
+    else {
+      log('Fetch ' + chalk.yellow(img), opts.verbose);
+          // different case for uri start '//'
+      if (img[0] + img[1] === '//') {
+        img = 'http:' + img;
+      }
+
+      fetchRemoteRessource(img, function (resultBuffer) {
+        if (resultBuffer === null) {
+          log('Error: ' + chalk.red(img) + ', unable to fetch', opts.verbose);
+          doneCallback();
+          return;
+        }
+        fileRes.path = img;
+        fileRes.contents = resultBuffer;
+        doneCallback(fileRes);
+        return;
+      });
+    }
   } else {
     var location = '';
     var binRes = '';
