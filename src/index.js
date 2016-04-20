@@ -119,9 +119,7 @@ function encodeResource(img, file, opts, doneCallback) {
     if (opts.keepHttpResource) {
       log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', http resource', opts.verbose);
       doneCallback();
-      return;
-    }
-    else {
+    } else {
       log('Fetch ' + chalk.yellow(img), opts.verbose);
           // different case for uri start '//'
       if (img[0] + img[1] === '//') {
