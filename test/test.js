@@ -525,9 +525,7 @@ describe('gulp-css-base64', function () {
       contents: new Buffer('.button_alert{background:url(http://www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
     });
 
-    var opts = {
-      keepHttpResource: true
-    }
+    var opts = { keepHttpResource: true };
     // Create a css-base64 plugin stream
     var stream = base64(opts);
 
