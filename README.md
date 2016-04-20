@@ -71,6 +71,11 @@ Type: `Array`
 
 Default value: `[]`
 
+### options.keepHttpResource
+Type: `Boolean`
+
+Default: value: `false`
+
 ## Ignore a specific resource
 
 You can ignore a resource with a comment `/*base64:skip*/` in CSS file after url definition.

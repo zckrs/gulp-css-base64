@@ -520,6 +520,31 @@ describe('gulp-css-base64', function () {
     });
   });
 
+  it('should keep http resource by keepHttpResource', function (done) {
+    var fakeFile = new gutil.File({
+      contents: new Buffer('.button_alert{background:url(http://www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
+    });
+
+    var opts = {
+      keepHttpResource: true
+    };
+    // Create a css-base64 plugin stream
+    var stream = base64(opts);
+
+    // write the fake file to it
+    stream.write(fakeFile);
+
+    // wait for the file to come back out
+    stream.once('data', function (file) {
+      // make sure it came out the same way it went in
+      assert(file.isBuffer());
+
+      // check the contents
+      assert.equal(file.contents.toString('utf8'), '.button_alert{background:url(http://www.google.com/favicon.ico) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}');
+      done();
+    });
+  });
+
   describe('in stream mode', function () {
     it('should throw a PluginError', function (done) {
             // create the fake file

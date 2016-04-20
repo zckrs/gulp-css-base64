@@ -26,6 +26,7 @@ function gulpCssBase64(opts) {
     opts.extensionsAllowed = [];
   }
   opts.extensionsAllowed = opts.extensionsAllowed || [];
+  opts.keepHttpResource = opts.keepHttpResource || false;
   opts.baseDir = opts.baseDir || '';
   opts.verbose = process.argv.indexOf('--verbose') !== -1;
 
@@ -116,23 +117,28 @@ function encodeResource(img, file, opts, doneCallback) {
   }
 
   if (/^(http|https|\/\/)/.test(img)) {
-    log('Fetch ' + chalk.yellow(img), opts.verbose);
-        // different case for uri start '//'
-    if (img[0] + img[1] === '//') {
-      img = 'http:' + img;
-    }
-
-    fetchRemoteRessource(img, function (resultBuffer) {
-      if (resultBuffer === null) {
-        log('Error: ' + chalk.red(img) + ', unable to fetch', opts.verbose);
-        doneCallback();
-        return;
+    if (opts.keepHttpResource) {
+      log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', http resource', opts.verbose);
+      doneCallback();
+    } else {
+      log('Fetch ' + chalk.yellow(img), opts.verbose);
+          // different case for uri start '//'
+      if (img[0] + img[1] === '//') {
+        img = 'http:' + img;
       }
-      fileRes.path = img;
-      fileRes.contents = resultBuffer;
-      doneCallback(fileRes);
-      return;
-    });
+
+      fetchRemoteRessource(img, function (resultBuffer) {
+        if (resultBuffer === null) {
+          log('Error: ' + chalk.red(img) + ', unable to fetch', opts.verbose);
+          doneCallback();
+          return;
+        }
+        fileRes.path = img;
+        fileRes.contents = resultBuffer;
+        doneCallback(fileRes);
+        return;
+      });
+    }
   } else {
     var location = '';
     var binRes = '';
