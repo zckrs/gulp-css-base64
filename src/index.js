@@ -27,7 +27,7 @@ function gulpCssBase64(opts) {
   }
   opts.extensionsAllowed = opts.extensionsAllowed || [];
   opts.baseDir = opts.baseDir || '';
-  opts.verbose = process.argv.indexOf('--verbose') !== -1;
+  opts.verbose = process.argv.indexOf('--verbose') !== -1 || opts.verbose === true;
 
     // Creating a stream through which each file will pass
   var stream = through.obj(function (file, enc, callbackStream) {
@@ -95,6 +95,10 @@ function gulpCssBase64(opts) {
       this.emit('error', new gutil.PluginError('gulp-css-base64', 'Stream not supported!'));
     }
   });
+
+  stream.isVerbose = function () {
+    return opts.verbose;
+  };
 
     // returning the file stream
   return stream;
