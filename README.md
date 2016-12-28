@@ -1,4 +1,5 @@
 # gulp-css-base64
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/zckrs/gulp-css-base64?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](http://img.shields.io/travis/zckrs/gulp-css-base64.svg?style=flat)](https://travis-ci.org/zckrs/gulp-css-base64)
 [![Coverage Status](http://img.shields.io/coveralls/zckrs/gulp-css-base64.svg?style=flat)](https://coveralls.io/r/zckrs/gulp-css-base64?branch=master)
