@@ -49,7 +49,7 @@
   "eslintConfig": {
     "extends": "xo-space",
     "env": {
-        "mocha": true
+      "mocha": true
     }
   }
 }
