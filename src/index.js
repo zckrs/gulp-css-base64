@@ -8,7 +8,9 @@ var util = require('util');
 var Stream = require('stream').Stream;
 
 // NPM library
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
+var fancyLog = require('fancy-log');
+var PluginError = require('plugin-error');
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
@@ -92,7 +94,7 @@ function gulpCssBase64(opts) {
     }
 
     if (file.isStream()) {
-      this.emit('error', new gutil.PluginError('gulp-css-base64', 'Stream not supported!'));
+      this.emit('error', new PluginError('gulp-css-base64', 'Stream not supported!'));
     }
   });
 
@@ -101,7 +103,7 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
-  var fileRes = new gutil.File();
+  var fileRes = new Vinyl();
 
   if (/^data:/.test(img)) {
     log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', already encoded', opts.verbose);
@@ -187,7 +189,7 @@ function fetchRemoteRessource(url, callback) {
 
 function log(message, isVerbose) {
   if (isVerbose === true) {
-    gutil.log(message);
+    fancyLog(message);
   }
 }
 
