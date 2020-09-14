@@ -10,6 +10,7 @@ var Stream = require('stream').Stream;
 // NPM library
 var gutil = require('gulp-util');
 var FancyLog = require('fancy-log');
+var PluginError = require('plugin-error');
 var through = require('through2');
 var request = require('request');
 var buffers = require('buffers');
@@ -93,7 +94,7 @@ function gulpCssBase64(opts) {
     }
 
     if (file.isStream()) {
-      this.emit('error', new gutil.PluginError('gulp-css-base64', 'Stream not supported!'));
+      this.emit('error', new PluginError('gulp-css-base64', 'Stream not supported!'));
     }
   });
 
