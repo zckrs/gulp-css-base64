@@ -2,10 +2,10 @@
 
 // NodeJS library
 var assert = require('assert');
+var Readable = require('stream').Readable
 
 // NPM library
 var Vinyl = require('vinyl');
-var es = require('event-stream');
 
 // Local library
 var base64 = require('../src/index');
@@ -535,7 +535,7 @@ describe('gulp-css-base64', function () {
     it('should throw a PluginError', function (done) {
             // create the fake file
       var fakeFile = new Vinyl({
-        contents: es.readArray(['stream', 'with', 'those', 'contents'])
+        contents: new Readable()
       });
 
             // Create a prefixer plugin stream
