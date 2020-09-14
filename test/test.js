@@ -26,6 +26,7 @@ describe('gulp-css-base64', function () {
     it('should convert url() content', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -49,6 +50,7 @@ describe('gulp-css-base64', function () {
     it('should convert url(\'\') content with quotes', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\'test/fixtures/image/very-very-small.png\') no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -72,6 +74,7 @@ describe('gulp-css-base64', function () {
     it('should convert url(\"\") content with double quotes', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\"test/fixtures/image/very-very-small.png\") no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -95,6 +98,7 @@ describe('gulp-css-base64', function () {
     it('should convert url() content with questionmark at end', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\'test/fixtures/image/very-very-small.png?awesomeQuestionmark\') no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -118,6 +122,7 @@ describe('gulp-css-base64', function () {
     it('should convert url() content with questionmark at end even if extensionsAllowed is passed', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\'test/fixtures/image/very-very-small.png?awesomeQuestionmark\') no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -143,6 +148,7 @@ describe('gulp-css-base64', function () {
     it('should convert url() content with hashtag at end', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\'test/fixtures/image/very-very-small.png#awesomeHashtag\') no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -166,6 +172,7 @@ describe('gulp-css-base64', function () {
     it('should convert url() content with hashtag at end even if extensionsAllowed is passed', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(\'test/fixtures/image/very-very-small.png#awesomeHashtag\') no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -191,6 +198,7 @@ describe('gulp-css-base64', function () {
     it('should ignore if image weight is greater than maxWeightResource default value', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -262,6 +270,7 @@ describe('gulp-css-base64', function () {
     it('should ignore if resource is not found', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(wrong/path/image.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -356,6 +365,7 @@ describe('gulp-css-base64', function () {
     it('should use option base directory to fetch local resource with relative path', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
@@ -429,6 +439,7 @@ describe('gulp-css-base64', function () {
     it('should use cache when css contain duplicate uri resource', function (done) {
             // create the fake file
       var fakeFile = new gutil.File({
+        path: 'fake.css',
         contents: new Buffer('.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline.button_alert{background:url(test/fixtures/image/very-very-small.png) no-repeat 4px 5px;padding-left:12px;font-size:12px;color:#888;text-decoration:underline}')
       });
 
