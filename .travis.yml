@@ -12,6 +12,8 @@ node_js:
   - lts/*
   - 10
   - 8
+  - v5
+  - v4
 
 
 after_script:
