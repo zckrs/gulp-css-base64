@@ -2,7 +2,7 @@
 
 // NodeJS library
 var assert = require('assert');
-var Readable = require('stream').Readable
+var Readable = require('stream').Readable;
 
 // NPM library
 var Vinyl = require('vinyl');
