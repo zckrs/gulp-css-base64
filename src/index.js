@@ -8,7 +8,7 @@ var util = require('util');
 var Stream = require('stream').Stream;
 
 // NPM library
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var FancyLog = require('fancy-log');
 var PluginError = require('plugin-error');
 var through = require('through2');
@@ -103,7 +103,7 @@ function gulpCssBase64(opts) {
 }
 
 function encodeResource(img, file, opts, doneCallback) {
-  var fileRes = new gutil.File();
+  var fileRes = new Vinyl();
 
   if (/^data:/.test(img)) {
     log('Ignores ' + chalk.yellow(img.substring(0, 30) + '...') + ', already encoded', opts.verbose);
