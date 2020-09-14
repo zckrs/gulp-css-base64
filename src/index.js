@@ -9,7 +9,7 @@ var Stream = require('stream').Stream;
 
 // NPM library
 var Vinyl = require('vinyl');
-var FancyLog = require('fancy-log');
+var fancyLog = require('fancy-log');
 var PluginError = require('plugin-error');
 var through = require('through2');
 var request = require('request');
@@ -189,7 +189,7 @@ function fetchRemoteRessource(url, callback) {
 
 function log(message, isVerbose) {
   if (isVerbose === true) {
-    FancyLog(message);
+    fancyLog(message);
   }
 }
 
