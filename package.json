@@ -6,12 +6,13 @@
   "repository": "zckrs/gulp-css-base64.git",
   "bugs": {
     "url": "http://github.com/zckrs/gulp-css-base64/issues",
-    "email": "mdara@eleven-labs.com"
+    "email": "mehdy.dara.fr@gmail.com"
   },
-  "author": "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)",
+  "author": "Mehdy Dara <mehdy.dara.fr@gmail.com> (https://github.com/zckrs)",
   "contributors": [
-    "Mehdy Dara <mdara@eleven-labs.com> (http://eleven-labs.com/)",
-    "Callum Jefferies <callum.jefferies@gmail.com> (http://callumj.uk/)"
+    "Mehdy Dara <mehdy.dara.fr@gmail.com> (https://github.com/zckrs)",
+    "Callum Jefferies <callum.jefferies@gmail.com> (http://callumj.uk/)",
+    "Igor Dontsov <dontsovigor@gmail.com>"
   ],
   "files": [
     "src"
@@ -35,8 +36,8 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
-    "eslint": "^1.10.3",
-    "eslint-config-xo-space": "^0.7.0",
+    "eslint": "^7.9.0",
+    "eslint-config-xo-space": "^0.25.0",
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4",
     "mocha-lcov-reporter": "^1.0.0"
